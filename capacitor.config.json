@@ -1,0 +1,6 @@
+{
+  "appId": "com.petconnect.app",
+  "appName": "PetConnect",
+  "webDir": "dist",
+  "server": { "androidScheme": "https" }
+}

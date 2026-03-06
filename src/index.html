@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>PetConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --cream:#FFF8F0; --warm:#FFF3E6; --orange:#FF6B35; --orange-glow:rgba(255,107,53,.12);
+      --green:#2D9C52; --green-light:#E8F7EE; --red:#E53935; --yellow:#FFB300;
+      --brown:#5C3D2E; --card:#FFFFFF; --card2:#FFF8F2; --border:#F0E0CC;
+      --text:#2C1810; --gray:#9E8070; --font:'Nunito',sans-serif;
+    }
+    html,body{height:100%;overflow:hidden}
+    body{background:var(--cream);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+
+    /* ===== SCREENS ===== */
+    .screen{display:none;height:100dvh;flex-direction:column;overflow:hidden}
+    .screen.active{display:flex}
+
+    /* ===== SPLASH ===== */
+    #splash{background:var(--orange);align-items:center;justify-content:center;gap:16px}
+    .splash-logo{font-size:72px;animation:bounce .6s ease infinite alternate}
+    @keyframes bounce{to{transform:translateY(-12px)}}
+    .splash-title{font-size:36px;font-weight:900;color:white;letter-spacing:-1px}
+    .splash-sub{color:rgba(255,255,255,.7);font-size:15px}
+
+    /* ===== LOGIN ===== */
+    #login{background:var(--cream);overflow-y:auto}
+    .login-top{background:var(--orange);padding:60px 28px 40px;text-align:center}
+    .login-icon{font-size:56px;margin-bottom:8px}
+    .login-title{font-size:32px;font-weight:900;color:white}
+    .login-sub{color:rgba(255,255,255,.8);font-size:14px}
+    .login-body{padding:28px}
+    .login-banner{background:#2a0f0f;color:#ff9999;border-radius:12px;padding:12px;font-size:14px;margin-bottom:16px;display:none}
+    .form-group{margin-bottom:14px}
+    .form-label{display:block;font-size:13px;font-weight:700;color:var(--gray);margin-bottom:6px}
+    .form-input{width:100%;background:white;border:1.5px solid var(--border);border-radius:14px;padding:13px 16px;font-size:15px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .2s}
+    .form-input:focus{border-color:var(--orange)}
+    .form-select{width:100%;background:white;border:1.5px solid var(--border);border-radius:14px;padding:13px 16px;font-size:15px;font-family:var(--font);color:var(--text);outline:none;appearance:none}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn-primary{width:100%;background:var(--orange);color:white;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:800;font-family:var(--font);cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(255,107,53,.3)}
+    .btn-primary:active{transform:scale(.97)}
+    .btn-outline{width:100%;background:transparent;color:var(--orange);border:2px solid var(--orange);border-radius:14px;padding:13px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all .2s}
+    .login-switch{text-align:center;margin-top:16px;font-size:14px;color:var(--gray)}
+    .login-switch span{color:var(--orange);font-weight:700;cursor:pointer}
+    .forgot-link{text-align:center;margin-top:10px;font-size:14px;color:var(--gray);cursor:pointer}
+    .forgot-link:hover{color:var(--orange)}
+
+    /* ===== EXPIRED ===== */
+    #expired{background:var(--cream);align-items:center;justify-content:center;padding:28px;text-align:center;gap:20px}
+    .expired-icon{font-size:64px}
+    .expired-title{font-size:32px;font-weight:900;color:var(--red)}
+    .expired-msg{color:var(--gray);font-size:15px;line-height:1.6;max-width:320px}
+    .pix-card{background:white;border:2px solid var(--orange);border-radius:20px;padding:20px;width:100%;max-width:340px}
+    .pix-label{font-size:12px;font-weight:700;color:var(--gray);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+    .pix-key{font-size:15px;font-weight:800;color:var(--orange);word-break:break-all}
+    .btn-whatsapp{display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:white;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:800;font-family:var(--font);cursor:pointer;width:100%;max-width:340px}
+
+    /* ===== MAIN APP ===== */
+    #main{background:var(--cream)}
+    .app-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:72px}
+    .tab-page{display:none;animation:fadeIn .2s ease}
+    .tab-page.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* Bottom nav */
+    .bottom-nav{height:64px;background:white;border-top:1px solid var(--border);display:flex;align-items:center;position:fixed;bottom:0;left:0;right:0;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--gray);cursor:pointer;padding:8px 4px;transition:color .2s;border:none;background:none;font-family:var(--font);position:relative}
+    .nav-item i{font-size:20px;transition:transform .2s}
+    .nav-item.active{color:var(--orange)}
+    .nav-item.active i{transform:scale(1.1)}
+    .nav-badge{position:absolute;top:6px;right:calc(50% - 14px);background:var(--red);color:white;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+    /* Headers */
+    .page-header{background:white;padding:16px 18px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+    .page-header-top{display:flex;align-items:center;justify-content:space-between}
+    .page-title{font-size:24px;font-weight:900;color:var(--text)}
+    .page-sub{font-size:13px;color:var(--gray);margin-top:2px}
+    .btn-add{background:var(--orange);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px}
+
+    /* ===== HOME / PETS TAB ===== */
+    .home-header{background:var(--orange);padding:20px 18px 28px}
+    .welcome-text{font-size:22px;font-weight:900;color:white}
+    .welcome-sub{font-size:13px;color:rgba(255,255,255,.75);margin-top:2px}
+    .home-body{padding:16px 16px 0;margin-top:-16px}
+
+    /* Pet card */
+    .pet-card{background:white;border-radius:20px;border:1.5px solid var(--border);margin-bottom:14px;overflow:hidden;transition:transform .2s}
+    .pet-card:active{transform:scale(.98)}
+    .pet-card-header{padding:14px 16px;display:flex;align-items:center;gap:14px}
+    .pet-emoji-avatar{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+    .pet-info{flex:1;min-width:0}
+    .pet-name{font-size:18px;font-weight:900}
+    .pet-meta{font-size:12px;color:var(--gray);margin-top:2px}
+    .pet-species-badge{background:var(--warm);color:var(--orange);font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px}
+    .pet-quick-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-top:1px solid var(--border)}
+    .pet-stat{background:white;padding:10px 14px}
+    .pet-stat-label{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px}
+    .pet-stat-val{font-size:14px;font-weight:800;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pet-stat-val.orange{color:var(--orange)}
+    .pet-actions{display:flex;gap:8px;padding:10px 14px;background:var(--card2)}
+    .pet-action-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:white;border:1.5px solid var(--border);border-radius:10px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;color:var(--text)}
+    .pet-action-btn:hover{border-color:var(--orange);color:var(--orange)}
+    .pet-action-btn.edit{color:var(--gray)}
+    .pet-action-btn.del{color:var(--red);border-color:var(--red)}
+
+    .empty-state{text-align:center;padding:60px 28px;color:var(--gray)}
+    .empty-state .empty-icon{font-size:56px;margin-bottom:16px}
+    .empty-state h3{font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px}
+    .empty-state p{font-size:14px;line-height:1.5}
+
+    /* ===== PET DETAIL SCREEN ===== */
+    #petDetail{background:var(--cream);overflow-y:auto}
+    .pet-detail-header{background:var(--orange);padding:16px 18px 40px;position:relative}
+    .back-btn{background:rgba(255,255,255,.2);border:none;color:white;width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;margin-bottom:16px}
+    .pet-detail-avatar{font-size:64px;text-align:center;margin-bottom:8px}
+    .pet-detail-name{font-size:32px;font-weight:900;color:white;text-align:center}
+    .pet-detail-meta{text-align:center;color:rgba(255,255,255,.8);font-size:14px;margin-top:4px}
+    .pet-detail-body{padding:16px;margin-top:-24px}
+    .detail-card{background:white;border-radius:20px;border:1.5px solid var(--border);margin-bottom:14px;overflow:hidden}
+    .detail-card-title{padding:14px 16px 10px;font-size:16px;font-weight:900;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .detail-card-body{padding:14px 16px}
+    .detail-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .detail-row:last-child{border-bottom:none}
+    .detail-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .detail-label{font-size:12px;color:var(--gray);font-weight:600}
+    .detail-val{font-size:14px;font-weight:800}
+    .vaccine-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+    .vaccine-item:last-child{border-bottom:none}
+    .vaccine-name{font-size:14px;font-weight:700}
+    .vaccine-date{font-size:12px;color:var(--gray)}
+    .vaccine-next{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+    .vaccine-ok{background:var(--green-light);color:var(--green)}
+    .vaccine-warn{background:#FFF8E0;color:var(--yellow)}
+    .vaccine-late{background:#FFEBEE;color:var(--red)}
+    .btn-sm{background:var(--orange);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer}
+    .btn-sm-outline{background:transparent;color:var(--gray);border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer}
+
+    /* ===== FEED ===== */
+    .post-card{background:white;border-radius:20px;border:1.5px solid var(--border);margin:0 16px 14px;overflow:hidden}
+    .post-header{padding:14px 14px 0;display:flex;align-items:center;gap:10px}
+    .avatar{width:40px;height:40px;border-radius:14px;background:var(--orange);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:16px;flex-shrink:0}
+    .post-author{font-weight:800;font-size:14px}
+    .post-meta{font-size:12px;color:var(--gray)}
+    .post-category{background:var(--warm);color:var(--orange);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-left:auto}
+    .post-content{padding:10px 14px;font-size:14px;color:#3C2A1E;line-height:1.6}
+    .post-actions{padding:8px 14px 12px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)}
+    .action-btn{background:none;border:none;color:var(--gray);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);padding:4px 8px;border-radius:8px;display:flex;align-items:center;gap:5px;transition:all .2s}
+    .action-btn:hover,.action-btn.liked{color:var(--red)}
+    .btn-edit{background:transparent;color:var(--gray);border:none;padding:4px 8px;border-radius:8px;font-size:13px;cursor:pointer;transition:all .2s;font-family:var(--font)}
+    .btn-edit:hover{color:var(--orange)}
+    .btn-delete{background:transparent;color:var(--gray);border:none;padding:4px 8px;border-radius:8px;font-size:13px;cursor:pointer;transition:color .2s;font-family:var(--font)}
+    .btn-delete:hover{color:var(--red)}
+
+    /* ===== PERDIDOS/ADOCAO ===== */
+    .lost-card{background:white;border-radius:20px;border:1.5px solid var(--border);margin:0 16px 14px;overflow:hidden}
+    .lost-type-strip{padding:8px 14px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px}
+    .lost-strip-lost{background:#FFEBEE;color:var(--red)}
+    .lost-strip-adopt{background:var(--green-light);color:var(--green)}
+    .lost-strip-found{background:#FFF8E0;color:var(--yellow)}
+    .lost-body{padding:12px 14px}
+    .lost-pet-name{font-size:18px;font-weight:900;margin-bottom:4px}
+    .lost-desc{font-size:13px;color:var(--gray);line-height:1.5;margin-bottom:10px}
+    .lost-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card2);border-top:1px solid var(--border)}
+    .btn-contact{background:var(--orange);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px}
+
+    /* ===== ADMIN ===== */
+    #admin{background:var(--cream);overflow-y:auto}
+    .admin-header{background:var(--brown);padding:20px 18px;display:flex;align-items:center;justify-content:space-between}
+    .admin-logo{font-size:22px;font-weight:900;color:white;display:flex;align-items:center;gap:8px}
+    .admin-tabs{display:flex;gap:0;background:white;border-bottom:1px solid var(--border);overflow-x:auto}
+    .admin-tab{flex:1;min-width:80px;padding:12px 8px;font-size:13px;font-weight:700;font-family:var(--font);border:none;background:none;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+    .admin-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
+    .stat-card{background:white;border-radius:16px;padding:16px;border:1.5px solid var(--border);text-align:center}
+    .stat-val{font-size:36px;font-weight:900;color:var(--orange);font-family:var(--font)}
+    .stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px}
+    .admin-search{margin:0 16px 12px;padding:10px 14px;background:white;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:var(--font);width:calc(100% - 32px);outline:none}
+    .admin-search:focus{border-color:var(--orange)}
+    .user-card{background:white;border-radius:16px;border:1.5px solid var(--border);margin:0 16px 10px;padding:14px}
+    .user-card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .user-avatar{width:42px;height:42px;border-radius:14px;background:var(--orange);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px;flex-shrink:0}
+    .user-name{font-size:15px;font-weight:800}
+    .user-email{font-size:12px;color:var(--gray)}
+    .badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700}
+    .badge-active{background:var(--green-light);color:var(--green)}
+    .badge-blocked{background:#FFEBEE;color:var(--red)}
+    .badge-expired{background:#FFF8E0;color:var(--yellow)}
+    .badge-expiring{background:#FFF3E0;color:#E65100}
+    .user-card-footer{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
+    .user-btn{flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;border:none;transition:all .2s}
+    .btn-renew{background:var(--green-light);color:var(--green)}
+    .btn-block{background:#FFEBEE;color:var(--red)}
+    .btn-unblock{background:var(--green-light);color:var(--green)}
+
+    /* ===== MODALS ===== */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,24,16,.5);z-index:200;align-items:flex-end;backdrop-filter:blur(4px)}
+    .modal-overlay.open{display:flex}
+    .modal{background:white;border-radius:28px 28px 0 0;padding:20px 20px 32px;width:100%;max-height:92dvh;overflow-y:auto}
+    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px}
+    .modal-title{font-size:22px;font-weight:900;margin-bottom:18px}
+    .modal-title span{color:var(--orange)}
+
+    /* ===== PROFILE ===== */
+    .profile-header{background:var(--orange);padding:24px 18px 32px;text-align:center}
+    .profile-avatar-circle{width:72px;height:72px;border-radius:22px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:white;margin:0 auto 12px}
+    .profile-name{font-size:24px;font-weight:900;color:white}
+    .profile-city{font-size:13px;color:rgba(255,255,255,.75);margin-top:2px}
+    .expiry-card{margin:16px;background:white;border:1.5px solid var(--border);border-radius:16px;padding:14px;display:flex;align-items:center;gap:14px}
+    .expiry-icon{font-size:28px}
+    .expiry-label{font-size:12px;color:var(--gray);font-weight:700}
+    .expiry-value{font-size:16px;font-weight:900;color:var(--orange)}
+    .menu-list{margin:0 16px}
+    .menu-item{background:white;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;border:1.5px solid var(--border);transition:all .2s}
+    .menu-item:hover{border-color:var(--orange)}
+    .menu-icon{width:40px;height:40px;border-radius:12px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .menu-title{font-size:15px;font-weight:800}
+    .menu-sub{font-size:12px;color:var(--gray)}
+    .menu-arrow{margin-left:auto;color:var(--gray);font-size:12px}
+    .menu-item.logout-item{background:#FFEBEE;border-color:#FFCDD2}
+    .menu-item.logout-item .menu-icon{background:#FFCDD2;color:var(--red)}
+    .menu-item.logout-item .menu-title{color:var(--red)}
+
+    /* ===== LOADING / TOAST ===== */
+    .loading{display:flex;justify-content:center;padding:40px}
+    .loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#2C1810;color:white;padding:12px 22px;border-radius:50px;font-size:14px;font-weight:700;opacity:0;transition:all .3s;z-index:500;white-space:nowrap;pointer-events:none}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .filter-chips{display:flex;gap:8px;padding:10px 16px;overflow-x:auto}
+    .filter-chips::-webkit-scrollbar{display:none}
+    .chip{background:white;border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:var(--font)}
+    .chip.active{background:var(--orange);color:white;border-color:var(--orange)}
+    .home-lost-card{background:white;border-radius:16px;border:1.5px solid var(--border);padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s}
+    .home-lost-card:active{transform:scale(.98)}
+    .home-lost-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+    .section-header{padding:14px 16px 4px;display:flex;align-items:center;justify-content:space-between}
+    .section-title{font-size:20px;font-weight:900}
+  </style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash" class="screen active">
+  <div class="splash-logo">🐾</div>
+  <div class="splash-title">PetConnect</div>
+  <div class="splash-sub">Cuidando de quem você ama</div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="screen">
+  <div class="login-top">
+    <div class="login-icon">🐾</div>
+    <div class="login-title">PetConnect</div>
+    <div class="login-sub">Cuidando de quem você ama</div>
+  </div>
+  <div class="login-body">
+    <div id="loginBanner" class="login-banner"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" id="loginEmail" class="form-input" placeholder="seu@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••"/>
+      </div>
+      <button class="btn-primary" onclick="doLogin()">ENTRAR</button>
+      <div class="forgot-link" onclick="showForgot()">Esqueci minha senha</div>
+      <div class="login-switch">Não tem conta? <span onclick="showRegister()">Cadastre-se grátis</span></div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none;">
+      <div class="form-group"><label class="form-label">Nome completo</label><input type="text" id="regName" class="form-input" placeholder="Seu nome"/></div>
+      <div class="form-group"><label class="form-label">E-mail</label><input type="email" id="regEmail" class="form-input" placeholder="seu@email.com"/></div>
+      <div class="form-group"><label class="form-label">Senha</label><input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres"/></div>
+      <div class="form-group"><label class="form-label">Telefone / WhatsApp</label><input type="tel" id="regPhone" class="form-input" placeholder="(27) 99999-9999"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Cidade</label><input type="text" id="regCity" class="form-input" placeholder="Cidade"/></div>
+        <div class="form-group"><label class="form-label">Estado</label><input type="text" id="regState" class="form-input" placeholder="ES" maxlength="2"/></div>
+      </div>
+      <button class="btn-primary" onclick="doRegister()">CRIAR CONTA</button>
+      <div class="login-switch">Já tem conta? <span onclick="showLogin()">Entrar</span></div>
+    </div>
+
+    <!-- FORGOT FORM -->
+    <div id="forgotForm" style="display:none;">
+      <div class="form-group"><label class="form-label">E-mail cadastrado</label><input type="email" id="forgotEmail" class="form-input" placeholder="seu@email.com"/></div>
+      <button class="btn-primary" onclick="doForgot()">ENVIAR LINK</button>
+      <div class="login-switch"><span onclick="showLogin()">← Voltar</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPIRED -->
+<div id="expired" class="screen">
+  <div class="expired-icon">⏰</div>
+  <div class="expired-title">Acesso Expirado</div>
+  <div class="expired-msg">Seu período terminou. Renove via PIX e envie o comprovante no WhatsApp.</div>
+  <div class="pix-card">
+    <div class="pix-label">Chave PIX</div>
+    <div class="pix-key">rodrigowiltonalmeida@gmail.com</div>
+    <div style="margin-top:8px;font-size:12px;color:var(--gray);">R$15/mês · R$120/ano</div>
+  </div>
+  <button class="btn-whatsapp" onclick="openWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Renovar via WhatsApp</button>
+  <div class="forgot-link" onclick="doLogout()">Sair da conta</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main" class="screen">
+  <div class="app-content">
+
+    <!-- MEUS PETS TAB -->
+    <div id="tab-pets" class="tab-page active">
+      <div class="home-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="welcome-text">Olá, <span id="welcomeName">tutor</span>! 👋</div>
+            <div class="welcome-sub">Seus pets estão esperando por você</div>
+          </div>
+          <button class="btn-add" onclick="openModal('addPetModal')"><i class="fa-solid fa-plus"></i> Pet</button>
+        </div>
+      </div>
+      <div class="home-body">
+        <div id="petsList"><div class="loading"><div class="loading-spinner"></div></div></div>
+        <!-- Lost/Adoption preview -->
+        <div style="margin-top:4px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px 10px;">
+            <div style="font-size:17px;font-weight:900;">🔍 Perdidos & Adoção</div>
+            <span style="color:var(--orange);font-size:13px;font-weight:700;cursor:pointer;" onclick="switchTab('lost')">Ver todos →</span>
+          </div>
+          <div id="homeLostPreview"><div class="loading"><div class="loading-spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEED TAB -->
+    <div id="tab-feed" class="tab-page">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div><div class="page-title">Comunidade</div><div class="page-sub">Posts de tutores</div></div>
+          <button class="btn-add" onclick="openModal('createPostModal')"><i class="fa-solid fa-plus"></i> Post</button>
+        </div>
+        <div class="filter-chips" style="padding:10px 0 0;">
+          <div class="chip active" onclick="filterFeed('',this)">Todos</div>
+          <div class="chip" onclick="filterFeed('Dica',this)">💡 Dicas</div>
+          <div class="chip" onclick="filterFeed('Saúde',this)">❤️ Saúde</div>
+          <div class="chip" onclick="filterFeed('Foto',this)">📸 Fotos</div>
+          <div class="chip" onclick="filterFeed('Pergunta',this)">❓ Perguntas</div>
+        </div>
+      </div>
+      <div id="feedList" style="padding-top:14px;"></div>
+    </div>
+
+    <!-- PERDIDOS / ADOÇÃO TAB -->
+    <div id="tab-lost" class="tab-page">
+      <div class="page-header">
+        <div class="page-header-top">
+          <div><div class="page-title">Perdidos & Adoção</div><div class="page-sub">Ajude a reunir famílias</div></div>
+          <button class="btn-add" onclick="openModal('createLostModal')"><i class="fa-solid fa-plus"></i> Publicar</button>
+        </div>
+        <div class="filter-chips" style="padding:10px 0 0;">
+          <div class="chip active" onclick="filterLost('all',this)">Todos</div>
+          <div class="chip" onclick="filterLost('lost',this)">🔍 Perdidos</div>
+          <div class="chip" onclick="filterLost('adopt',this)">🏠 Adoção</div>
+          <div class="chip" onclick="filterLost('found',this)">✅ Encontrados</div>
+        </div>
+      </div>
+      <div id="lostList" style="padding-top:14px;"></div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div id="tab-profile" class="tab-page">
+      <div class="profile-header">
+        <div class="profile-avatar-circle" id="profileAvatar">🐾</div>
+        <div class="profile-name" id="profileName">Carregando...</div>
+        <div class="profile-city" id="profileCity"></div>
+      </div>
+      <div class="expiry-card">
+        <div class="expiry-icon">⏰</div>
+        <div>
+          <div class="expiry-label">Vencimento do acesso</div>
+          <div class="expiry-value" id="profileExpiry">—</div>
+        </div>
+      </div>
+      <div class="menu-list">
+        <div class="menu-item" onclick="switchTab('pets')">
+          <div class="menu-icon">🐾</div>
+          <div><div class="menu-title">Meus Pets</div><div class="menu-sub" id="profilePetCount">0 pets cadastrados</div></div>
+          <i class="fa-solid fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item" onclick="openModal('lgpdModal')">
+          <div class="menu-icon">🔒</div>
+          <div><div class="menu-title">Privacidade & LGPD</div><div class="menu-sub">Seus dados e exclusão de conta</div></div>
+          <i class="fa-solid fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item logout-item" onclick="doLogout()">
+          <div class="menu-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
+          <div><div class="menu-title">Sair</div></div>
+        </div>
+      </div>
+      <div style="height:20px;"></div>
+    </div>
+
+  </div><!-- end app-content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-pets" onclick="switchTab('pets')">
+      <i class="fa-solid fa-paw"></i><span>Meus Pets</span>
+    </button>
+    <button class="nav-item" id="nav-feed" onclick="switchTab('feed')">
+      <i class="fa-solid fa-users"></i><span>Comunidade</span>
+    </button>
+    <button class="nav-item" id="nav-lost" onclick="switchTab('lost')">
+      <i class="fa-solid fa-magnifying-glass"></i><span>Perdidos</span>
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+      <i class="fa-solid fa-user"></i><span>Perfil</span>
+    </button>
+  </div>
+</div>
+
+<!-- PET DETAIL SCREEN -->
+<div id="petDetail" class="screen">
+  <div class="pet-detail-header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <button class="back-btn" onclick="closePetDetail()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div style="display:flex;gap:8px;">
+        <button id="detailEditBtn" class="back-btn" title="Editar"><i class="fa-solid fa-pen"></i></button>
+        <button id="detailDelBtn" class="back-btn" style="background:rgba(229,57,53,.3);" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+    <div class="pet-detail-avatar" id="detailAvatar">🐶</div>
+    <div class="pet-detail-name" id="detailName">—</div>
+    <div class="pet-detail-meta" id="detailMeta">—</div>
+  </div>
+  <div class="pet-detail-body" id="petDetailBody"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="screen">
+  <div class="admin-header">
+    <div class="admin-logo">🐾 Admin PetConnect</div>
+    <button style="background:rgba(255,255,255,.2);border:none;color:white;padding:8px 14px;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="doLogout()">Sair</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Usuários</div></div>
+    <div class="stat-card"><div class="stat-val" id="statActive">0</div><div class="stat-label">Ativos</div></div>
+    <div class="stat-card"><div class="stat-val" id="statExpiring" style="color:var(--yellow);">0</div><div class="stat-label">Expirando</div></div>
+    <div class="stat-card"><div class="stat-val" id="statExpired" style="color:var(--red);">0</div><div class="stat-label">Expirados</div></div>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="setAdminTab('active',this)">Ativos</button>
+    <button class="admin-tab" onclick="setAdminTab('expiring',this)">Expirando</button>
+    <button class="admin-tab" onclick="setAdminTab('expired',this)">Expirados</button>
+    <button class="admin-tab" onclick="setAdminTab('blocked',this)">Bloqueados</button>
+    <button class="admin-tab" onclick="setAdminTab('all',this)">Todos</button>
+  </div>
+  <input class="admin-search" id="adminSearch" placeholder="Buscar por nome ou e-mail..." oninput="renderAdminUsers()"/>
+  <div id="adminUsersList"></div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add Pet -->
+<div id="addPetModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">➕ Adicionar <span>Pet</span></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Nome do pet</label><input type="text" id="petName" class="form-input" placeholder="Ex: Rex, Luna..."/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Espécie</label>
+          <select id="petSpecies" class="form-select" onchange="updateEmojiPreview()">
+            <option value="dog">🐶 Cão</option><option value="cat">🐱 Gato</option>
+            <option value="bird">🐦 Ave</option><option value="rabbit">🐰 Coelho</option>
+            <option value="fish">🐟 Peixe</option><option value="other">🐾 Outro</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Sexo</label>
+          <select id="petSex" class="form-select"><option value="M">Macho</option><option value="F">Fêmea</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Raça</label><input type="text" id="petBreed" class="form-input" placeholder="Ex: Golden Retriever, SRD..."/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nascimento</label><input type="date" id="petBirth" class="form-input"/></div>
+        <div class="form-group"><label class="form-label">Peso atual (kg)</label><input type="number" step="0.1" id="petWeight" class="form-input" placeholder="Ex: 8.5"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Cor / Pelagem</label><input type="text" id="petColor" class="form-input" placeholder="Ex: Caramelo, Preto e branco..."/></div>
+      <div style="background:var(--warm);border-radius:14px;padding:14px;">
+        <div style="font-size:13px;font-weight:800;color:var(--orange);margin-bottom:10px;">🍖 Alimentação</div>
+        <div class="form-group"><label class="form-label">Tipo de ração/alimento</label><input type="text" id="petFood" class="form-input" placeholder="Ex: Royal Canin Adult, Whiskas..."/></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Último valor (R$)</label><input type="number" step="0.01" id="petFoodPrice" class="form-input" placeholder="Ex: 89.90"/></div>
+          <div class="form-group"><label class="form-label">Onde comprou</label><input type="text" id="petFoodWhere" class="form-input" placeholder="Ex: PetLove, Cobasi..."/></div>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Observações</label><textarea id="petNotes" class="form-input" rows="2" style="resize:none;" placeholder="Alergias, comportamentos especiais..."></textarea></div>
+      <button class="btn-primary" onclick="submitAddPet()">SALVAR PET</button>
+      <button class="btn-outline" onclick="closeModal('addPetModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Pet -->
+<div id="editPetModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">✏️ Editar <span>Pet</span></div>
+    <input type="hidden" id="editPetId"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="editPetName" class="form-input"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Espécie</label>
+          <select id="editPetSpecies" class="form-select">
+            <option value="dog">🐶 Cão</option><option value="cat">🐱 Gato</option>
+            <option value="bird">🐦 Ave</option><option value="rabbit">🐰 Coelho</option>
+            <option value="fish">🐟 Peixe</option><option value="other">🐾 Outro</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Sexo</label>
+          <select id="editPetSex" class="form-select"><option value="M">Macho</option><option value="F">Fêmea</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Raça</label><input type="text" id="editPetBreed" class="form-input"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nascimento</label><input type="date" id="editPetBirth" class="form-input"/></div>
+        <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" step="0.1" id="editPetWeight" class="form-input"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Cor</label><input type="text" id="editPetColor" class="form-input"/></div>
+      <div style="background:var(--warm);border-radius:14px;padding:14px;">
+        <div style="font-size:13px;font-weight:800;color:var(--orange);margin-bottom:10px;">🍖 Alimentação</div>
+        <div class="form-group"><label class="form-label">Tipo de ração</label><input type="text" id="editPetFood" class="form-input"/></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Último valor (R$)</label><input type="number" step="0.01" id="editPetFoodPrice" class="form-input"/></div>
+          <div class="form-group"><label class="form-label">Onde comprou</label><input type="text" id="editPetFoodWhere" class="form-input"/></div>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Observações</label><textarea id="editPetNotes" class="form-input" rows="2" style="resize:none;"></textarea></div>
+      <button class="btn-primary" onclick="submitEditPet()">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('editPetModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Vaccine -->
+<div id="addVaccineModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">💉 Registrar <span>Vacina</span></div>
+    <input type="hidden" id="vaccinePetId"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Nome da vacina</label>
+        <select id="vaccineName" class="form-select">
+          <option>V10 (Múltipla)</option><option>V8</option><option>Antirrábica</option>
+          <option>Giárdia</option><option>Tríplice Felina</option><option>Quádrupla Felina</option>
+          <option>Gripe Felina</option><option>Leucemia Felina</option><option>Outra</option>
+        </select></div>
+      <div id="vaccineOtherWrap" style="display:none;">
+        <div class="form-group"><label class="form-label">Especificar</label><input type="text" id="vaccineOther" class="form-input" placeholder="Nome da vacina"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Data de aplicação</label><input type="date" id="vaccineDate" class="form-input"/></div>
+        <div class="form-group"><label class="form-label">Próxima dose</label><input type="date" id="vaccineNext" class="form-input"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Veterinário / Clínica</label><input type="text" id="vaccineVet" class="form-input" placeholder="Nome do vet ou clínica"/></div>
+      <div class="form-group"><label class="form-label">Lote / Observação</label><input type="text" id="vaccineLot" class="form-input" placeholder="Número do lote (opcional)"/></div>
+      <button class="btn-primary" onclick="submitVaccine()">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('addVaccineModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Consult -->
+<div id="addConsultModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">🏥 Registrar <span>Consulta</span></div>
+    <input type="hidden" id="consultPetId"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Data</label><input type="date" id="consultDate" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Motivo / Diagnóstico</label><input type="text" id="consultReason" class="form-input" placeholder="Ex: Check-up, Vômito, Otite..."/></div>
+      <div class="form-group"><label class="form-label">Veterinário / Clínica</label><input type="text" id="consultVet" class="form-input" placeholder="Nome do vet ou clínica"/></div>
+      <div class="form-group"><label class="form-label">Medicamentos receitados</label><textarea id="consultMeds" class="form-input" rows="2" style="resize:none;" placeholder="Ex: Amoxicilina 250mg — 1x/dia por 7 dias..."></textarea></div>
+      <div class="form-group"><label class="form-label">Observações</label><textarea id="consultNotes" class="form-input" rows="2" style="resize:none;"></textarea></div>
+      <div class="form-group"><label class="form-label">Valor pago (R$)</label><input type="number" step="0.01" id="consultPrice" class="form-input" placeholder="0.00"/></div>
+      <button class="btn-primary" onclick="submitConsult()">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('addConsultModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Weight -->
+<div id="addWeightModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">⚖️ Registrar <span>Peso</span></div>
+    <input type="hidden" id="weightPetId"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Data</label><input type="date" id="weightDate" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" step="0.1" id="weightValue" class="form-input" placeholder="Ex: 8.5"/></div>
+      <div class="form-group"><label class="form-label">Observação</label><input type="text" id="weightNote" class="form-input" placeholder="Opcional"/></div>
+      <button class="btn-primary" onclick="submitWeight()">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('addWeightModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Post -->
+<div id="createPostModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">✍️ Nova <span>Publicação</span></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Categoria</label>
+        <select id="postCategory" class="form-select">
+          <option>Dica</option><option>Saúde</option><option>Foto</option><option>Pergunta</option><option>Geral</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Conteúdo</label><textarea id="postContent" class="form-input" rows="4" style="resize:none;" placeholder="Compartilhe algo com a comunidade..."></textarea></div>
+      <button class="btn-primary" onclick="submitPost()">PUBLICAR</button>
+      <button class="btn-outline" onclick="closeModal('createPostModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Lost/Adoption -->
+<div id="createLostModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">🔍 Publicar <span>Pet</span></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Tipo</label>
+        <select id="lostType" class="form-select">
+          <option value="lost">🔍 Pet Perdido</option>
+          <option value="adopt">🏠 Para Adoção</option>
+          <option value="found">✅ Pet Encontrado</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Nome do pet (se souber)</label><input type="text" id="lostPetName" class="form-input" placeholder="Ex: Bob, desconhecido..."/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Espécie</label>
+          <select id="lostSpecies" class="form-select">
+            <option>Cão</option><option>Gato</option><option>Ave</option><option>Outro</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Raça / Cor</label><input type="text" id="lostBreed" class="form-input" placeholder="SRD, caramelo..."/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Bairro / Local</label><input type="text" id="lostLocation" class="form-input" placeholder="Onde foi visto ou mora"/></div>
+      <div class="form-group"><label class="form-label">Descrição</label><textarea id="lostDesc" class="form-input" rows="3" style="resize:none;" placeholder="Detalhes que ajudem a identificar..."></textarea></div>
+      <div class="form-group"><label class="form-label">Contato (WhatsApp)</label><input type="tel" id="lostContact" class="form-input" placeholder="(27) 99999-9999"/></div>
+      <button class="btn-primary" onclick="submitLostPost()">PUBLICAR</button>
+      <button class="btn-outline" onclick="closeModal('createLostModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- LGPD -->
+<div id="lgpdModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">🔒 Privacidade & <span>LGPD</span></div>
+    <div style="overflow-y:auto;max-height:45vh;margin-bottom:16px;font-size:14px;color:#555;line-height:1.7;">
+      <strong style="color:var(--orange);">Política de Privacidade — PetConnect</strong><br><br>
+      Coletamos apenas dados necessários: nome, e-mail, cidade, telefone e informações dos seus pets.<br><br>
+      <strong>Seus direitos (LGPD — Lei 13.709/2018):</strong><br>
+      • Acessar, corrigir ou excluir seus dados<br>
+      • Revogar consentimento a qualquer momento<br><br>
+      Armazenamento: Google Firebase. Dúvidas: <span style="color:var(--orange);">rodrigowiltonalmeida@gmail.com</span>
+    </div>
+    <div style="background:#fff0f0;border:1px solid #ffcdd2;border-radius:12px;padding:14px;margin-bottom:12px;">
+      <p style="font-size:13px;color:var(--red);margin-bottom:10px;">⚠️ Excluir conta remove permanentemente todos seus dados e pets. Irreversível.</p>
+      <button class="btn-outline" style="color:var(--red);border-color:var(--red);width:100%;" onclick="deleteMyAccount()">🗑️ Excluir minha conta</button>
+    </div>
+    <button class="btn-outline" onclick="closeModal('lgpdModal')">Fechar</button>
+  </div>
+</div>
+
+<!-- Renew Modal (Admin) -->
+<div id="renewModal" class="modal-overlay">
+  <div class="modal"><div class="modal-handle"></div>
+    <div class="modal-title">🔄 Renovar <span>Acesso</span></div>
+    <input type="hidden" id="renewUid"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="renewName" class="form-input" readonly/></div>
+      <div class="form-group"><label class="form-label">Dias de acesso</label>
+        <select id="renewDays" class="form-select">
+          <option value="30">30 dias — R$15</option>
+          <option value="60">60 dias — R$28</option>
+          <option value="90">90 dias — R$40</option>
+          <option value="365">365 dias — R$120</option>
+        </select></div>
+      <button class="btn-primary" onclick="submitRenew()">RENOVAR</button>
+      <button class="btn-outline" onclick="closeModal('renewModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script type="module">
+import {
+  auth, onAuthStateChanged, loginUser, registerUser, logoutUser, resetPassword,
+  getCurrentUser, getPets, createPet, updatePet, deletePet,
+  getVaccines, addVaccine, deleteVaccine,
+  getConsults, addConsult, deleteConsult,
+  getWeights, addWeight, deleteWeight,
+  getPosts, createPost, toggleLike,
+  getLostPets, createLostPost,
+  getAllUsers, toggleUserActive, renewAccess, getAdminStats,
+  deleteItem, updateItem, Timestamp
+} from './services/firebase.js';
+
+let currentUser = null;
+let allAdminUsers = [];
+let currentAdminTab = 'active';
+let allPosts = [];
+let allLostPets = [];
+const SPECIES_EMOJI = { dog:'🐶', cat:'🐱', bird:'🐦', rabbit:'🐰', fish:'🐟', other:'🐾' };
+
+// ===== UTILS =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+window.showScreen = showScreen;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+window.openModal = openModal; window.closeModal = closeModal;
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const diff = (Date.now() - d) / 1000;
+  if (diff < 60) return 'agora';
+  if (diff < 3600) return Math.floor(diff/60) + 'min';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h';
+  return Math.floor(diff/86400) + 'd';
+}
+
+function petAge(birthStr) {
+  if (!birthStr) return '';
+  const birth = new Date(birthStr);
+  const now = new Date();
+  const months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+  if (months < 12) return months + (months === 1 ? ' mês' : ' meses');
+  const years = Math.floor(months / 12);
+  return years + (years === 1 ? ' ano' : ' anos');
+}
+
+// ===== AUTH =====
+onAuthStateChanged(auth, async (firebaseUser) => {
+  if (!firebaseUser) { showScreen('login'); return; }
+  try {
+    currentUser = await getCurrentUser();
+    if (!currentUser) { showScreen('login'); return; }
+    if (!currentUser.isAdmin && !currentUser.isActive) {
+      await logoutUser(); showScreen('login');
+      const b = document.getElementById('loginBanner');
+      b.textContent = '🚫 Conta bloqueada. WhatsApp: (27) 99273-4399';
+      b.style.display = 'block';
+      return;
+    }
+    if (!currentUser.isAdmin && currentUser.isExpired) { showScreen('expired'); return; }
+    if (currentUser.isAdmin) { showScreen('admin'); loadAdminData(); }
+    else { showScreen('main'); initMainApp(); }
+  } catch(e) { showScreen('login'); }
+});
+
+setTimeout(() => { if (document.getElementById('splash').classList.contains('active')) showScreen('login'); }, 2000);
+
+// ===== LOGIN =====
+function showLogin() {
+  document.getElementById('loginForm').style.display='block';
+  document.getElementById('registerForm').style.display='none';
+  document.getElementById('forgotForm').style.display='none';
+}
+function showRegister() {
+  document.getElementById('loginForm').style.display='none';
+  document.getElementById('registerForm').style.display='block';
+  document.getElementById('forgotForm').style.display='none';
+}
+function showForgot() {
+  document.getElementById('loginForm').style.display='none';
+  document.getElementById('forgotForm').style.display='block';
+}
+window.showLogin = showLogin; window.showRegister = showRegister; window.showForgot = showForgot;
+
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) { showToast('Preencha todos os campos'); return; }
+  try {
+    currentUser = await loginUser(email, password);
+    if (currentUser.isAdmin) { showScreen('admin'); loadAdminData(); }
+    else { showScreen('main'); initMainApp(); }
+  } catch(e) {
+    const msgs = {
+      'EXPIRED':'EXPIRADO','BLOCKED':'🚫 Conta bloqueada. WhatsApp: (27) 99273-4399',
+      'auth/invalid-credential':'E-mail ou senha incorretos',
+      'auth/too-many-requests':'Muitas tentativas. Tente mais tarde.'
+    };
+    const banner = document.getElementById('loginBanner');
+    if (e.message === 'EXPIRED') { showScreen('expired'); return; }
+    banner.textContent = msgs[e.message] || msgs[e.code] || 'Erro ao fazer login';
+    banner.style.display = 'block';
+  }
+}
+
+window.doRegister = async function() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const phone = document.getElementById('regPhone').value.trim();
+  const city = document.getElementById('regCity').value.trim();
+  const state = document.getElementById('regState').value.trim();
+  if (!name||!email||!password) { showToast('Preencha nome, e-mail e senha'); return; }
+  if (password.length < 6) { showToast('Senha deve ter ao menos 6 caracteres'); return; }
+  try {
+    currentUser = await registerUser({ name, email, password, phone, city, state });
+    showScreen('main'); initMainApp();
+  } catch(e) {
+    const msgs = {'auth/email-already-in-use':'E-mail já cadastrado','auth/weak-password':'Senha muito fraca'};
+    showToast(msgs[e.code] || 'Erro ao cadastrar');
+  }
+}
+
+window.doForgot = async function() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) { showToast('Informe o e-mail'); return; }
+  try { await resetPassword(email); showToast('✅ Link enviado no e-mail!'); showLogin(); }
+  catch(e) { showToast('E-mail não encontrado'); }
+}
+
+window.doLogout = async function() {
+  await logoutUser(); currentUser = null; showScreen('login');
+}
+
+window.openWhatsApp = function() {
+  window.open('https://wa.me/5527992734399?text=Olá!%20Quero%20renovar%20meu%20acesso%20do%20PetConnect!','_blank');
+}
+
+// ===== MAIN INIT =====
+
+// ===== HOME PREVIEW - Lost & Adoption =====
+async function loadHomePreview() {
+  const container = document.getElementById('homeLostPreview');
+  if (!container) return;
+  try {
+    const items = await getLostPets('all');
+    window._loadedLostPets = items;
+    if (!items.length) {
+      container.innerHTML = `<div style="text-align:center;color:var(--gray);font-size:13px;padding:12px 0;">Nenhuma publicação ainda. <span style="color:var(--orange);cursor:pointer;" onclick="openModal('createLostModal')">Publicar →</span></div>`;
+      return;
+    }
+
+    container.innerHTML = items.slice(0,3).map(item => {
+      const colors = { lost:['#FFEBEE','#E53935'], adopt:['#E8F7EE','#2D9C52'], found:['#FFF8E0','#FFB300'] };
+      const labels = { lost:'🔍 PERDIDO', adopt:'🏠 ADOÇÃO', found:'✅ ENCONTRADO' };
+      const [bg, color] = colors[item.type] || colors.lost;
+      return `<div class="home-lost-card" onclick="switchTab('lost')">`
+        + `<div class="home-lost-icon" style="background:${bg};">${item.type==='lost'?'🔍':item.type==='adopt'?'🏠':'✅'}</div>`
+        + `<div style="flex:1;min-width:0;">`
+        + `<div style="font-size:10px;font-weight:800;color:${color};letter-spacing:.5px;">${labels[item.type]||''}</div>`
+        + `<div style="font-size:15px;font-weight:900;">${item.petName||'Pet'} · ${item.species||''}</div>`
+        + `<div style="font-size:12px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(item.description||'').substring(0,60)}</div>`
+        + `</div>`
+        + (item.contact ? `<button style="background:var(--orange);color:white;border:none;border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" onclick="event.stopPropagation();contactLost('${item.contact}','${item.petName||'pet'}')">`
+        + `<i class="fa-brands fa-whatsapp"></i></button>` : '')
+        + `</div>`;
+    }).join('');
+  } catch(e) { if(container) container.innerHTML = ''; }
+}
+
+function initMainApp() {
+  loadProfile();
+  loadPets();
+  loadHomePreview();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('nav-'+tab).classList.add('active');
+  if (tab === 'feed' && (!allPosts.length)) loadFeed();
+  if (tab === 'lost' && (!allLostPets.length)) loadLostPets();
+}
+window.switchTab = switchTab;
+
+// ===== PROFILE =====
+function loadProfile() {
+  if (!currentUser) return;
+  document.getElementById('welcomeName').textContent = currentUser.name?.split(' ')[0] || 'tutor';
+  document.getElementById('profileName').textContent = currentUser.name || '';
+  document.getElementById('profileCity').textContent = [currentUser.city, currentUser.state].filter(Boolean).join(' · ');
+  document.getElementById('profileAvatar').textContent = (currentUser.name||'P')[0].toUpperCase();
+  const expiry = currentUser.expirationDate?.toDate?.();
+  document.getElementById('profileExpiry').textContent = expiry ? expiry.toLocaleDateString('pt-BR') : '—';
+}
+
+// ===== PETS =====
+async function loadPets() {
+  const list = document.getElementById('petsList');
+  list.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+  try {
+    const pets = await getPets(currentUser.uid);
+    window._loadedPets = pets;
+    document.getElementById('profilePetCount').textContent = pets.length + (pets.length === 1 ? ' pet cadastrado' : ' pets cadastrados');
+    if (!pets.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">🐾</div><h3>Nenhum pet ainda</h3><p>Cadastre seu primeiro pet e comece a cuidar!</p></div>`;
+      return;
+    }
+    list.innerHTML = pets.map(p => {
+      const emoji = SPECIES_EMOJI[p.species] || '🐾';
+      const age = petAge(p.birthDate);
+      const bgColors = { dog:'#FFF0E8', cat:'#FFE8F0', bird:'#E8F9F8', rabbit:'#F0E8FF', fish:'#E8F0FF', other:'#F0F0F0' };
+      return `
+        <div class="pet-card" onclick="openPetDetail('${p.id}')">
+          <div class="pet-card-header">
+            <div class="pet-emoji-avatar" style="background:${bgColors[p.species]||'#F0F0F0'}">${emoji}</div>
+            <div class="pet-info">
+              <div class="pet-name">${p.name}</div>
+              <div class="pet-meta">${p.breed||''}${age ? ' · '+age : ''}${p.sex ? ' · '+(p.sex==='M'?'Macho':'Fêmea') : ''}</div>
+            </div>
+            <div class="pet-species-badge">${p.species==='dog'?'Cão':p.species==='cat'?'Gato':p.species==='bird'?'Ave':p.species==='rabbit'?'Coelho':p.species==='fish'?'Peixe':'Outro'}</div>
+          </div>
+          <div class="pet-quick-stats">
+            <div class="pet-stat">
+              <div class="pet-stat-label">🍖 Alimentação</div>
+              <div class="pet-stat-val orange">${p.foodType || '—'}</div>
+            </div>
+            <div class="pet-stat">
+              <div class="pet-stat-label">💰 Último preço</div>
+              <div class="pet-stat-val">${p.foodPrice ? 'R$ '+parseFloat(p.foodPrice).toFixed(2) : '—'}</div>
+            </div>
+            <div class="pet-stat">
+              <div class="pet-stat-label">🏪 Onde comprou</div>
+              <div class="pet-stat-val">${p.foodWhere || '—'}</div>
+            </div>
+            <div class="pet-stat">
+              <div class="pet-stat-label">⚖️ Peso</div>
+              <div class="pet-stat-val">${p.weight ? p.weight+'kg' : '—'}</div>
+            </div>
+          </div>
+          <div class="pet-actions">
+            <button class="pet-action-btn" onclick="event.stopPropagation();openAddVaccine('${p.id}')">💉 Vacina</button>
+            <button class="pet-action-btn" onclick="event.stopPropagation();openAddConsult('${p.id}')">🏥 Consulta</button>
+            <button class="pet-action-btn edit" onclick="event.stopPropagation();openEditPet('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="pet-action-btn del" onclick="event.stopPropagation();confirmDeletePet('${p.id}','${p.name}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) { console.error('loadPets error:', e); list.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Erro ao carregar</h3><p>' + e.message + '</p></div>'; }
+}
+
+// ===== PET DETAIL =====
+window.openPetDetail = async function(petId) {
+  const pets = window._loadedPets || await getPets(currentUser.uid);
+  const p = pets.find(x => x.id === petId);
+  if (!p) return;
+  const emoji = SPECIES_EMOJI[p.species] || '🐾';
+  document.getElementById('detailAvatar').textContent = emoji;
+  document.getElementById('detailName').textContent = p.name;
+  document.getElementById('detailMeta').textContent = [p.breed, petAge(p.birthDate), p.sex==='M'?'Macho':'Fêmea', p.color].filter(Boolean).join(' · ');
+  // show edit button in detail header
+  const editBtn = document.getElementById('detailEditBtn');
+  if (editBtn) { editBtn.onclick = () => openEditPet(petId); }
+  const delBtn = document.getElementById('detailDelBtn');
+  if (delBtn) { delBtn.onclick = () => confirmDeletePet(petId, p.name); }
+
+  // Load vaccines and consults
+  const [vaccines, consults, weights] = await Promise.all([
+    getVaccines(petId), getConsults(petId), getWeights(petId)
+  ]);
+
+  const body = document.getElementById('petDetailBody');
+  body.innerHTML = `
+    <!-- Alimentação -->
+    <div class="detail-card">
+      <div class="detail-card-title">🍖 Alimentação</div>
+      <div class="detail-card-body">
+        <div class="detail-row">
+          <div class="detail-icon" style="background:#FFF0E8;">🍖</div>
+          <div><div class="detail-label">Tipo / Ração</div><div class="detail-val">${p.foodType||'Não informado'}</div></div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon" style="background:#E8F7EE;">💰</div>
+          <div><div class="detail-label">Último valor pago</div><div class="detail-val">${p.foodPrice?'R$ '+parseFloat(p.foodPrice).toFixed(2):'Não informado'}</div></div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon" style="background:#FFF8E0;">🏪</div>
+          <div><div class="detail-label">Onde comprou</div><div class="detail-val">${p.foodWhere||'Não informado'}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vacinas -->
+    <div class="detail-card">
+      <div class="detail-card-title">💉 Vacinas
+        <button class="btn-sm" onclick="openAddVaccine('${petId}')">+ Adicionar</button>
+      </div>
+      <div class="detail-card-body">
+        ${vaccines.length ? vaccines.map(v => {
+          const nextDate = v.nextDate ? new Date(v.nextDate) : null;
+          const now = new Date();
+          const diffDays = nextDate ? Math.floor((nextDate - now) / 86400000) : null;
+          let statusClass = 'vaccine-ok', statusText = 'Em dia';
+          if (diffDays !== null) {
+            if (diffDays < 0) { statusClass = 'vaccine-late'; statusText = 'Atrasada!'; }
+            else if (diffDays <= 30) { statusClass = 'vaccine-warn'; statusText = diffDays + 'd'; }
+          }
+          return `<div class="vaccine-item">
+            <div>
+              <div class="vaccine-name">${v.name}</div>
+              <div class="vaccine-date">${v.date} · ${v.vetName||''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${diffDays !== null ? `<span class="vaccine-next ${statusClass}">${statusText}</span>` : ''}
+              <button class="btn-sm-outline" onclick="confirmDeleteVaccine('${v.id}')">🗑️</button>
+            </div>
+          </div>`;
+        }).join('') : '<div style="color:var(--gray);font-size:14px;text-align:center;padding:16px;">Nenhuma vacina registrada</div>'}
+      </div>
+    </div>
+
+    <!-- Consultas -->
+    <div class="detail-card">
+      <div class="detail-card-title">🏥 Consultas
+        <button class="btn-sm" onclick="openAddConsult('${petId}')">+ Adicionar</button>
+      </div>
+      <div class="detail-card-body">
+        ${consults.length ? consults.map(c => `
+          <div class="vaccine-item">
+            <div>
+              <div class="vaccine-name">${c.reason}</div>
+              <div class="vaccine-date">${c.date} · ${c.vetName||''} ${c.price?'· R$ '+parseFloat(c.price).toFixed(2):''}</div>
+              ${c.medications ? `<div style="font-size:12px;color:var(--gray);margin-top:2px;">💊 ${c.medications}</div>` : ''}
+            </div>
+            <button class="btn-sm-outline" onclick="confirmDeleteConsult('${c.id}')">🗑️</button>
+          </div>`).join('') : '<div style="color:var(--gray);font-size:14px;text-align:center;padding:16px;">Nenhuma consulta registrada</div>'}
+      </div>
+    </div>
+
+    <!-- Peso -->
+    <div class="detail-card">
+      <div class="detail-card-title">⚖️ Histórico de Peso
+        <button class="btn-sm" onclick="openAddWeight('${petId}')">+ Registrar</button>
+      </div>
+      <div class="detail-card-body">
+        ${weights.length ? weights.map(w => `
+          <div class="vaccine-item">
+            <div><div class="vaccine-name">${w.weight} kg</div><div class="vaccine-date">${w.date}${w.note?' · '+w.note:''}</div></div>
+            <button class="btn-sm-outline" onclick="confirmDeleteWeight('${w.id}')">🗑️</button>
+          </div>`).join('') : '<div style="color:var(--gray);font-size:14px;text-align:center;padding:16px;">Nenhum peso registrado</div>'}
+      </div>
+    </div>
+
+    ${p.notes ? `<div class="detail-card"><div class="detail-card-title">📝 Observações</div><div class="detail-card-body" style="font-size:14px;color:#555;line-height:1.6;">${p.notes}</div></div>` : ''}
+    <div style="height:20px;"></div>
+  `;
+  showScreen('petDetail');
+}
+
+window.closePetDetail = function() { showScreen('main'); }
+
+// ===== PET CRUD =====
+window.updateEmojiPreview = function() {}
+
+window.submitAddPet = async function() {
+  const name = document.getElementById('petName').value.trim();
+  if (!name) { showToast('Informe o nome do pet'); return; }
+  try {
+    await createPet({
+      name,
+      species: document.getElementById('petSpecies').value,
+      sex: document.getElementById('petSex').value,
+      breed: document.getElementById('petBreed').value.trim(),
+      birthDate: document.getElementById('petBirth').value,
+      weight: document.getElementById('petWeight').value,
+      color: document.getElementById('petColor').value.trim(),
+      foodType: document.getElementById('petFood').value.trim(),
+      foodPrice: document.getElementById('petFoodPrice').value,
+      foodWhere: document.getElementById('petFoodWhere').value.trim(),
+      notes: document.getElementById('petNotes').value.trim()
+    }, currentUser.uid, currentUser.name);
+    closeModal('addPetModal');
+    showToast('✅ Pet cadastrado!');
+    loadPets();
+    // clear
+    ['petName','petBreed','petBirth','petWeight','petColor','petFood','petFoodPrice','petFoodWhere','petNotes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+  } catch(e) { showToast('Erro ao salvar'); }
+}
+
+window.openEditPet = async function(petId) {
+  const pets = window._loadedPets || await getPets(currentUser.uid);
+  const p = pets.find(x => x.id === petId);
+  if (!p) return;
+  document.getElementById('editPetId').value = petId;
+  document.getElementById('editPetName').value = p.name || '';
+  document.getElementById('editPetSpecies').value = p.species || 'dog';
+  document.getElementById('editPetSex').value = p.sex || 'M';
+  document.getElementById('editPetBreed').value = p.breed || '';
+  document.getElementById('editPetBirth').value = p.birthDate || '';
+  document.getElementById('editPetWeight').value = p.weight || '';
+  document.getElementById('editPetColor').value = p.color || '';
+  document.getElementById('editPetFood').value = p.foodType || '';
+  document.getElementById('editPetFoodPrice').value = p.foodPrice || '';
+  document.getElementById('editPetFoodWhere').value = p.foodWhere || '';
+  document.getElementById('editPetNotes').value = p.notes || '';
+  openModal('editPetModal');
+}
+
+window.submitEditPet = async function() {
+  const id = document.getElementById('editPetId').value;
+  try {
+    await updatePet(id, {
+      name: document.getElementById('editPetName').value.trim(),
+      species: document.getElementById('editPetSpecies').value,
+      sex: document.getElementById('editPetSex').value,
+      breed: document.getElementById('editPetBreed').value.trim(),
+      birthDate: document.getElementById('editPetBirth').value,
+      weight: document.getElementById('editPetWeight').value,
+      color: document.getElementById('editPetColor').value.trim(),
+      foodType: document.getElementById('editPetFood').value.trim(),
+      foodPrice: document.getElementById('editPetFoodPrice').value,
+      foodWhere: document.getElementById('editPetFoodWhere').value.trim(),
+      notes: document.getElementById('editPetNotes').value.trim()
+    });
+    closeModal('editPetModal');
+    showToast('✅ Pet atualizado!');
+    loadPets();
+  } catch(e) { showToast('Erro ao salvar'); }
+}
+
+window.confirmDeletePet = async function(petId, name) {
+  if (!confirm('Excluir ' + name + '? Esta ação é irreversível.')) return;
+  try {
+    await deletePet(petId, currentUser.uid);
+    showToast('✅ Pet excluído');
+    loadPets();
+  } catch(e) { showToast('Erro ao excluir'); }
+}
+
+// ===== VACCINES =====
+window.openAddVaccine = function(petId) {
+  document.getElementById('vaccinePetId').value = petId;
+  document.getElementById('vaccineDate').value = new Date().toISOString().split('T')[0];
+  openModal('addVaccineModal');
+}
+document.getElementById('vaccineName').addEventListener('change', function() {
+  document.getElementById('vaccineOtherWrap').style.display = this.value === 'Outra' ? 'block' : 'none';
+});
+window.submitVaccine = async function() {
+  const petId = document.getElementById('vaccinePetId').value;
+  const nameVal = document.getElementById('vaccineName').value;
+  const finalName = nameVal === 'Outra' ? document.getElementById('vaccineOther').value.trim() : nameVal;
+  if (!finalName) { showToast('Informe o nome da vacina'); return; }
+  try {
+    await addVaccine({
+      petId, name: finalName,
+      date: document.getElementById('vaccineDate').value,
+      nextDate: document.getElementById('vaccineNext').value,
+      vetName: document.getElementById('vaccineVet').value.trim(),
+      lot: document.getElementById('vaccineLot').value.trim()
+    });
+    closeModal('addVaccineModal');
+    showToast('✅ Vacina registrada!');
+  } catch(e) { showToast('Erro ao salvar'); }
+}
+window.confirmDeleteVaccine = async function(id) {
+  if (!confirm('Excluir esta vacina?')) return;
+  try { await deleteVaccine(id); showToast('✅ Excluído'); }
+  catch(e) { showToast('Erro'); }
+}
+
+// ===== CONSULTS =====
+window.openAddConsult = function(petId) {
+  document.getElementById('consultPetId').value = petId;
+  document.getElementById('consultDate').value = new Date().toISOString().split('T')[0];
+  openModal('addConsultModal');
+}
+window.submitConsult = async function() {
+  const petId = document.getElementById('consultPetId').value;
+  const reason = document.getElementById('consultReason').value.trim();
+  if (!reason) { showToast('Informe o motivo'); return; }
+  try {
+    await addConsult({
+      petId, reason,
+      date: document.getElementById('consultDate').value,
+      vetName: document.getElementById('consultVet').value.trim(),
+      medications: document.getElementById('consultMeds').value.trim(),
+      notes: document.getElementById('consultNotes').value.trim(),
+      price: document.getElementById('consultPrice').value
+    });
+    closeModal('addConsultModal');
+    showToast('✅ Consulta registrada!');
+  } catch(e) { showToast('Erro ao salvar'); }
+}
+window.confirmDeleteConsult = async function(id) {
+  if (!confirm('Excluir esta consulta?')) return;
+  try { await deleteConsult(id); showToast('✅ Excluído'); }
+  catch(e) { showToast('Erro'); }
+}
+
+// ===== WEIGHT =====
+window.openAddWeight = function(petId) {
+  document.getElementById('weightPetId').value = petId;
+  document.getElementById('weightDate').value = new Date().toISOString().split('T')[0];
+  openModal('addWeightModal');
+}
+window.submitWeight = async function() {
+  const petId = document.getElementById('weightPetId').value;
+  const val = document.getElementById('weightValue').value;
+  if (!val) { showToast('Informe o peso'); return; }
+  try {
+    await addWeight({
+      petId, weight: parseFloat(val),
+      date: document.getElementById('weightDate').value,
+      note: document.getElementById('weightNote').value.trim()
+    });
+    closeModal('addWeightModal');
+    showToast('✅ Peso registrado!');
+  } catch(e) { showToast('Erro ao salvar'); }
+}
+window.confirmDeleteWeight = async function(id) {
+  if (!confirm('Excluir este registro?')) return;
+  try { await deleteWeight(id); showToast('✅ Excluído'); }
+  catch(e) { showToast('Erro'); }
+}
+
+// ===== FEED =====
+async function loadFeed(category = '') {
+  const list = document.getElementById('feedList');
+  list.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+  try {
+    allPosts = await getPosts(30);
+    renderFeed(category);
+  } catch(e) { list.innerHTML = '<div class="empty-state"><h3>Sem conexão</h3></div>'; }
+}
+
+function renderFeed(category = '') {
+  const list = document.getElementById('feedList');
+  const posts = category ? allPosts.filter(p => p.category === category) : allPosts;
+  if (!posts.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🐾</div><h3>Nenhuma publicação ainda</h3><p>Seja o primeiro a compartilhar!</p></div>';
+    return;
+  }
+  list.innerHTML = posts.map(p => {
+    const isMine = p.authorUid === currentUser?.uid;
+    const liked = p.likedBy?.includes(currentUser?.uid);
+    return `
+      <div class="post-card">
+        <div class="post-header">
+          <div class="avatar">${(p.authorName||'?')[0].toUpperCase()}</div>
+          <div><div class="post-author">${p.authorName||'Tutor'}</div><div class="post-meta">${timeAgo(p.createdAt)}</div></div>
+          <div class="post-category">${p.category||'Geral'}</div>
+        </div>
+        <div class="post-content">${p.content}</div>
+        <div class="post-actions">
+          <button class="action-btn ${liked?'liked':''}" onclick="handleLike('${p.id}')">
+            <i class="fa-${liked?'solid':'regular'} fa-heart"></i> ${p.likes||0}
+          </button>
+          ${isMine ? `<button class="btn-delete" onclick="deletePostConfirm('${p.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.filterFeed = function(cat, el) {
+  document.querySelectorAll('#tab-feed .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderFeed(cat);
+}
+
+window.handleLike = async function(postId) {
+  await toggleLike(postId, currentUser.uid);
+  loadFeed();
+}
+
+window.submitPost = async function() {
+  const content = document.getElementById('postContent').value.trim();
+  if (!content) { showToast('Escreva algo'); return; }
+  try {
+    await createPost(content, document.getElementById('postCategory').value, currentUser.uid, currentUser.name);
+    closeModal('createPostModal');
+    document.getElementById('postContent').value = '';
+    showToast('✅ Publicado!');
+    loadFeed(); switchTab('feed');
+  } catch(e) { showToast('Erro ao publicar'); }
+}
+
+window.deletePostConfirm = async function(id) {
+  if (!confirm('Excluir publicação?')) return;
+  try { await deleteItem('pc_posts', id); showToast('✅ Excluído'); loadFeed(); }
+  catch(e) { showToast('Erro'); }
+}
+
+// ===== LOST/ADOPTION =====
+async function loadLostPets(type = 'all') {
+  const list = document.getElementById('lostList');
+  list.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+  try {
+    allLostPets = await getLostPets(type);
+    window._loadedLostPets = allLostPets;
+    renderLostPets(type);
+  } catch(e) { list.innerHTML = '<div class="empty-state"><h3>Sem conexão</h3></div>'; }
+}
+
+function renderLostPets(type = 'all') {
+  const list = document.getElementById('lostList');
+  const items = type === 'all' ? allLostPets : allLostPets.filter(x => x.type === type);
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><h3>Nenhuma publicação</h3><p>Que ótima notícia! Nenhum pet perdido aqui.</p></div>';
+    return;
+  }
+  const stripConfig = { lost:['lost-strip-lost','🔍 PERDIDO'], adopt:['lost-strip-adopt','🏠 ADOÇÃO'], found:['lost-strip-found','✅ ENCONTRADO'] };
+  list.innerHTML = items.map(item => {
+    const [cls, label] = stripConfig[item.type] || ['lost-strip-lost','🔍'];
+    const isMine = item.ownerUid === currentUser?.uid;
+    return `
+      <div class="lost-card">
+        <div class="lost-type-strip ${cls}"><i class="fa-solid fa-paw"></i> ${label}</div>
+        <div class="lost-body">
+          <div class="lost-pet-name">${item.petName||'Pet'} · ${item.species||''} ${item.breed?'· '+item.breed:''}</div>
+          <div class="lost-desc">${item.description||''}</div>
+          ${item.location?`<div style="font-size:12px;color:var(--gray);"><i class="fa-solid fa-location-dot"></i> ${item.location}</div>`:''}
+        </div>
+        <div class="lost-footer">
+          <div style="font-size:12px;color:var(--gray);">${timeAgo(item.createdAt)} · por ${item.ownerName||''}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            ${isMine?`<button class="btn-sm-outline" onclick="deleteLostConfirm('${item.id}')">🗑️</button>`:''}
+            ${item.contact?`<button class="btn-contact" onclick="contactLost('${item.contact}','${item.petName||'pet'}')"><i class="fa-brands fa-whatsapp"></i> Contato</button>`:''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.filterLost = function(type, el) {
+  document.querySelectorAll('#tab-lost .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (allLostPets.length) renderLostPets(type);
+  else loadLostPets(type);
+}
+
+window.submitLostPost = async function() {
+  const petName = document.getElementById('lostPetName').value.trim();
+  const desc = document.getElementById('lostDesc').value.trim();
+  if (!desc) { showToast('Adicione uma descrição'); return; }
+  try {
+    await createLostPost({
+      type: document.getElementById('lostType').value,
+      petName: petName || 'Desconhecido',
+      species: document.getElementById('lostSpecies').value,
+      breed: document.getElementById('lostBreed').value.trim(),
+      location: document.getElementById('lostLocation').value.trim(),
+      description: desc,
+      contact: document.getElementById('lostContact').value.trim()
+    }, currentUser.uid, currentUser.name);
+    closeModal('createLostModal');
+    showToast('✅ Publicado!');
+    loadLostPets();
+  } catch(e) { showToast('Erro ao publicar'); }
+}
+
+window.contactLost = function(phone, petName) {
+  const msg = encodeURIComponent('Olá! Vi sua publicação sobre ' + petName + ' no PetConnect. Posso ajudar!');
+  window.open('https://wa.me/55' + phone.replace(/\D/g,'') + '?text=' + msg, '_blank');
+}
+
+window.deleteLostConfirm = async function(id) {
+  if (!confirm('Excluir publicação?')) return;
+  try { await deleteItem('pc_lost', id); showToast('✅ Excluído'); loadLostPets(); }
+  catch(e) { showToast('Erro'); }
+}
+
+// ===== DELETE ACCOUNT =====
+window.deleteMyAccount = async function() {
+  if (!confirm('Excluir conta? Todos os dados serão removidos permanentemente.')) return;
+  if (!confirm('Confirmar exclusão definitiva?')) return;
+  try {
+    await deleteItem('pc_users', currentUser.uid);
+    await logoutUser();
+    showScreen('login');
+    showToast('Conta excluída.');
+  } catch(e) { showToast('Erro ao excluir conta.'); }
+}
+
+// ===== ADMIN =====
+async function loadAdminData() {
+  try {
+    const stats = await getAdminStats();
+    document.getElementById('statTotal').textContent = stats.total;
+    document.getElementById('statActive').textContent = stats.active;
+    document.getElementById('statExpiring').textContent = stats.expiring;
+    document.getElementById('statExpired').textContent = stats.expired;
+    allAdminUsers = await getAllUsers();
+    renderAdminUsers();
+  } catch(e) { showToast('Erro ao carregar'); }
+}
+
+window.setAdminTab = function(tab, el) {
+  currentAdminTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderAdminUsers();
+}
+
+window.renderAdminUsers = function() {
+  const search = document.getElementById('adminSearch').value.toLowerCase();
+  const now = Date.now();
+  const filtered = allAdminUsers.filter(u => {
+    if (search && !u.name?.toLowerCase().includes(search) && !u.email?.toLowerCase().includes(search)) return false;
+    const expiry = u.expirationDate?.toDate?.();
+    const days = expiry ? (expiry - now) / (1000*60*60*24) : 0;
+    if (currentAdminTab === 'active') return u.isActive && !u.isExpired && days > 7;
+    if (currentAdminTab === 'expiring') return u.isActive && days >= 0 && days <= 7;
+    if (currentAdminTab === 'expired') return !u.isActive || days < 0;
+    if (currentAdminTab === 'blocked') return !u.isActive;
+    return true;
+  });
+
+  const list = document.getElementById('adminUsersList');
+  if (!filtered.length) { list.innerHTML = '<div class="empty-state"><h3>Nenhum usuário nesta categoria</h3></div>'; return; }
+
+  list.innerHTML = filtered.map(u => {
+    const expiry = u.expirationDate?.toDate?.();
+    const days = expiry ? Math.floor((expiry - now) / (1000*60*60*24)) : 0;
+    let badge = 'Ativo', badgeClass = 'badge-active';
+    if (!u.isActive) { badge = 'Bloqueado'; badgeClass = 'badge-blocked'; }
+    else if (days < 0) { badge = 'Expirado'; badgeClass = 'badge-expired'; }
+    else if (days <= 7) { badge = days + 'd'; badgeClass = 'badge-expiring'; }
+    return `
+      <div class="user-card">
+        <div class="user-card-top">
+          <div class="user-avatar">${(u.name||'?')[0].toUpperCase()}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="user-name">${u.name||'—'}</div>
+            <div class="user-email">${u.email} · ${u.city||''} ${u.state||''}</div>
+            <div class="user-email">🐾 ${u.totalPets||0} pets</div>
+          </div>
+          <span class="badge ${badgeClass}">${badge}</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:8px;">
+          Expira: ${expiry?expiry.toLocaleDateString('pt-BR'):'—'}
+          ${u.phone?` · 📱 ${u.phone}`:''}
+        </div>
+        <div class="user-card-footer">
+          <button class="user-btn btn-renew" onclick="openRenew('${u.uid}','${u.name||''}')">🔄 Renovar</button>
+          <button class="user-btn ${u.isActive?'btn-block':'btn-unblock'}" onclick="blockUser('${u.uid}',${u.isActive},'${u.name||''}')">
+            ${u.isActive?'🚫 Bloquear':'✅ Ativar'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.openRenew = function(uid, name) {
+  document.getElementById('renewUid').value = uid;
+  document.getElementById('renewName').value = name;
+  openModal('renewModal');
+}
+
+window.submitRenew = async function() {
+  const uid = document.getElementById('renewUid').value;
+  const days = parseInt(document.getElementById('renewDays').value);
+  try {
+    await renewAccess(uid, days);
+    closeModal('renewModal');
+    showToast('✅ Acesso renovado!');
+    loadAdminData();
+  } catch(e) { showToast('Erro ao renovar'); }
+}
+
+window.blockUser = async function(uid, isActive, name) {
+  const action = isActive ? 'bloquear' : 'ativar';
+  if (!confirm('Deseja ' + action + ' ' + name + '?')) return;
+  try {
+    await toggleUserActive(uid, !isActive);
+    showToast('✅ ' + (isActive ? 'Bloqueado' : 'Ativado') + '!');
+    loadAdminData();
+  } catch(e) { showToast('Erro'); }
+}
+
+</script>
+</body>
+</html>

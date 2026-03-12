@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     :root{
       --cream:#FFF8F0; --warm:#FFF3E6; --orange:#FF6B35; --orange-glow:rgba(255,107,53,.12);
       --green:#2D9C52; --green-light:#E8F7EE; --red:#E53935; --yellow:#FFB300;
@@ -226,6 +227,16 @@
     .menu-item.logout-item .menu-icon{background:#FFCDD2;color:var(--red)}
     .menu-item.logout-item .menu-title{color:var(--red)}
 
+    /* ===== FOOD HISTORY TABLE ===== */
+    .food-history-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+    .food-history-table th{background:var(--warm);color:var(--orange);font-size:11px;font-weight:800;text-transform:uppercase;padding:8px 10px;text-align:left;letter-spacing:.5px;}
+    .food-history-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+    .food-history-table tr:last-child td{border-bottom:none;}
+    .food-history-table tr:nth-child(even) td{background:#FAFAFA;}
+    .food-edit-btn{background:transparent;border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;color:var(--gray);font-family:var(--font);transition:all .2s;}
+    .food-edit-btn:hover{border-color:var(--orange);color:var(--orange);}
+    .food-current-badge{background:var(--green-light);color:var(--green);font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:6px;}
+
     /* ===== LOADING / TOAST ===== */
     .loading{display:flex;justify-content:center;padding:40px}
     .loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
@@ -413,17 +424,17 @@
   </div><!-- end app-content -->
 
   <!-- BOTTOM NAV -->
-  <div class="bottom-nav">
-    <button class="nav-item active" id="nav-pets" onclick="switchTab('pets')">
+  <div class="bottom-nav" role="navigation" aria-label="Navegação principal">
+    <button class="nav-item active" id="nav-pets" onclick="switchTab('pets')" aria-label="Botão Meus Pets" aria-current="page">
       <i class="fa-solid fa-paw"></i><span>Meus Pets</span>
     </button>
-    <button class="nav-item" id="nav-feed" onclick="switchTab('feed')">
+    <button class="nav-item" id="nav-feed" onclick="switchTab('feed')" aria-label="Botão Comunidade">
       <i class="fa-solid fa-users"></i><span>Comunidade</span>
     </button>
-    <button class="nav-item" id="nav-lost" onclick="switchTab('lost')">
+    <button class="nav-item" id="nav-lost" onclick="switchTab('lost')" aria-label="Botão Pets Perdidos">
       <i class="fa-solid fa-magnifying-glass"></i><span>Perdidos</span>
     </button>
-    <button class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+    <button class="nav-item" id="nav-profile" onclick="switchTab('profile')" aria-label="Botão Meu Perfil">
       <i class="fa-solid fa-user"></i><span>Perfil</span>
     </button>
   </div>
@@ -433,10 +444,10 @@
 <div id="petDetail" class="screen">
   <div class="pet-detail-header">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <button class="back-btn" onclick="closePetDetail()"><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="back-btn" onclick="closePetDetail()" aria-label="Botão Voltar para lista de pets"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button>
       <div style="display:flex;gap:8px;">
-        <button id="detailEditBtn" class="back-btn" title="Editar"><i class="fa-solid fa-pen"></i></button>
-        <button id="detailDelBtn" class="back-btn" style="background:rgba(229,57,53,.3);" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+        <button id="detailEditBtn" class="back-btn" title="Editar" aria-label="Botão Editar dados do pet"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+        <button id="detailDelBtn" class="back-btn" style="background:rgba(229,57,53,.3);" title="Excluir" aria-label="Botão Excluir pet"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
       </div>
     </div>
     <div class="pet-detail-avatar" id="detailAvatar">🐶</div>
@@ -450,7 +461,7 @@
 <div id="admin" class="screen">
   <div class="admin-header">
     <div class="admin-logo">🐾 Admin PetConnect</div>
-    <button style="background:rgba(255,255,255,.2);border:none;color:white;padding:8px 14px;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="doLogout()">Sair</button>
+    <button style="background:rgba(255,255,255,.2);border:none;color:white;padding:8px 14px;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="doLogout()" aria-label="Botão Sair do sistema">Sair</button>
   </div>
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Usuários</div></div>
@@ -479,13 +490,13 @@
       <div class="form-group"><label class="form-label">Nome do pet</label><input type="text" id="petName" class="form-input" placeholder="Ex: Rex, Luna..."/></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Espécie</label>
-          <select id="petSpecies" class="form-select" onchange="updateEmojiPreview()">
+          <select id="petSpecies" class="form-select" onchange="updateEmojiPreview()" aria-label="Opção Espécie do pet">
             <option value="dog">🐶 Cão</option><option value="cat">🐱 Gato</option>
             <option value="bird">🐦 Ave</option><option value="rabbit">🐰 Coelho</option>
             <option value="fish">🐟 Peixe</option><option value="other">🐾 Outro</option>
           </select></div>
         <div class="form-group"><label class="form-label">Sexo</label>
-          <select id="petSex" class="form-select"><option value="M">Macho</option><option value="F">Fêmea</option></select></div>
+          <select id="petSex" class="form-select" aria-label="Opção Sexo do pet"><option value="M">Macho</option><option value="F">Fêmea</option></select></div>
       </div>
       <div class="form-group"><label class="form-label">Raça</label><input type="text" id="petBreed" class="form-input" placeholder="Ex: Golden Retriever, SRD..."/></div>
       <div class="form-row">
@@ -502,8 +513,8 @@
         </div>
       </div>
       <div class="form-group"><label class="form-label">Observações</label><textarea id="petNotes" class="form-input" rows="2" style="resize:none;" placeholder="Alergias, comportamentos especiais..."></textarea></div>
-      <button class="btn-primary" onclick="submitAddPet()">SALVAR PET</button>
-      <button class="btn-outline" onclick="closeModal('addPetModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitAddPet()" aria-label="Botão Salvar novo pet">SALVAR PET</button>
+      <button class="btn-outline" onclick="closeModal('addPetModal')" aria-label="Botão Cancelar e fechar modal de adicionar pet">Cancelar</button>
     </div>
   </div>
 </div>
@@ -517,13 +528,13 @@
       <div class="form-group"><label class="form-label">Nome</label><input type="text" id="editPetName" class="form-input"/></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Espécie</label>
-          <select id="editPetSpecies" class="form-select">
+          <select id="editPetSpecies" class="form-select" aria-label="Opção Espécie do pet">
             <option value="dog">🐶 Cão</option><option value="cat">🐱 Gato</option>
             <option value="bird">🐦 Ave</option><option value="rabbit">🐰 Coelho</option>
             <option value="fish">🐟 Peixe</option><option value="other">🐾 Outro</option>
           </select></div>
         <div class="form-group"><label class="form-label">Sexo</label>
-          <select id="editPetSex" class="form-select"><option value="M">Macho</option><option value="F">Fêmea</option></select></div>
+          <select id="editPetSex" class="form-select" aria-label="Opção Sexo do pet"><option value="M">Macho</option><option value="F">Fêmea</option></select></div>
       </div>
       <div class="form-group"><label class="form-label">Raça</label><input type="text" id="editPetBreed" class="form-input"/></div>
       <div class="form-row">
@@ -540,8 +551,8 @@
         </div>
       </div>
       <div class="form-group"><label class="form-label">Observações</label><textarea id="editPetNotes" class="form-input" rows="2" style="resize:none;"></textarea></div>
-      <button class="btn-primary" onclick="submitEditPet()">SALVAR</button>
-      <button class="btn-outline" onclick="closeModal('editPetModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitEditPet()" aria-label="Botão Salvar alterações do pet">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('editPetModal')" aria-label="Botão Cancelar e fechar modal de editar pet">Cancelar</button>
     </div>
   </div>
 </div>
@@ -553,7 +564,7 @@
     <input type="hidden" id="vaccinePetId"/>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div class="form-group"><label class="form-label">Nome da vacina</label>
-        <select id="vaccineName" class="form-select">
+        <select id="vaccineName" class="form-select" aria-label="Opção Nome da vacina">
           <option>V10 (Múltipla)</option><option>V8</option><option>Antirrábica</option>
           <option>Giárdia</option><option>Tríplice Felina</option><option>Quádrupla Felina</option>
           <option>Gripe Felina</option><option>Leucemia Felina</option><option>Outra</option>
@@ -567,8 +578,8 @@
       </div>
       <div class="form-group"><label class="form-label">Veterinário / Clínica</label><input type="text" id="vaccineVet" class="form-input" placeholder="Nome do vet ou clínica"/></div>
       <div class="form-group"><label class="form-label">Lote / Observação</label><input type="text" id="vaccineLot" class="form-input" placeholder="Número do lote (opcional)"/></div>
-      <button class="btn-primary" onclick="submitVaccine()">SALVAR</button>
-      <button class="btn-outline" onclick="closeModal('addVaccineModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitVaccine()" aria-label="Botão Salvar vacina">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('addVaccineModal')" aria-label="Botão Cancelar e fechar modal de vacina">Cancelar</button>
     </div>
   </div>
 </div>
@@ -585,8 +596,8 @@
       <div class="form-group"><label class="form-label">Medicamentos receitados</label><textarea id="consultMeds" class="form-input" rows="2" style="resize:none;" placeholder="Ex: Amoxicilina 250mg — 1x/dia por 7 dias..."></textarea></div>
       <div class="form-group"><label class="form-label">Observações</label><textarea id="consultNotes" class="form-input" rows="2" style="resize:none;"></textarea></div>
       <div class="form-group"><label class="form-label">Valor pago (R$)</label><input type="number" step="0.01" id="consultPrice" class="form-input" placeholder="0.00"/></div>
-      <button class="btn-primary" onclick="submitConsult()">SALVAR</button>
-      <button class="btn-outline" onclick="closeModal('addConsultModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitConsult()" aria-label="Botão Salvar consulta">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('addConsultModal')" aria-label="Botão Cancelar e fechar modal de consulta">Cancelar</button>
     </div>
   </div>
 </div>
@@ -600,8 +611,8 @@
       <div class="form-group"><label class="form-label">Data</label><input type="date" id="weightDate" class="form-input"/></div>
       <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" step="0.1" id="weightValue" class="form-input" placeholder="Ex: 8.5"/></div>
       <div class="form-group"><label class="form-label">Observação</label><input type="text" id="weightNote" class="form-input" placeholder="Opcional"/></div>
-      <button class="btn-primary" onclick="submitWeight()">SALVAR</button>
-      <button class="btn-outline" onclick="closeModal('addWeightModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitWeight()" aria-label="Botão Salvar registro de peso">SALVAR</button>
+      <button class="btn-outline" onclick="closeModal('addWeightModal')" aria-label="Botão Cancelar e fechar modal de peso">Cancelar</button>
     </div>
   </div>
 </div>
@@ -612,12 +623,12 @@
     <div class="modal-title">✍️ Nova <span>Publicação</span></div>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div class="form-group"><label class="form-label">Categoria</label>
-        <select id="postCategory" class="form-select">
+        <select id="postCategory" class="form-select" aria-label="Opção Categoria da publicação">
           <option>Dica</option><option>Saúde</option><option>Foto</option><option>Pergunta</option><option>Geral</option>
         </select></div>
       <div class="form-group"><label class="form-label">Conteúdo</label><textarea id="postContent" class="form-input" rows="4" style="resize:none;" placeholder="Compartilhe algo com a comunidade..."></textarea></div>
-      <button class="btn-primary" onclick="submitPost()">PUBLICAR</button>
-      <button class="btn-outline" onclick="closeModal('createPostModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitPost()" aria-label="Botão Publicar na comunidade">PUBLICAR</button>
+      <button class="btn-outline" onclick="closeModal('createPostModal')" aria-label="Botão Cancelar e fechar modal de publicação">Cancelar</button>
     </div>
   </div>
 </div>
@@ -628,7 +639,7 @@
     <div class="modal-title">🔍 Publicar <span>Pet</span></div>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div class="form-group"><label class="form-label">Tipo</label>
-        <select id="lostType" class="form-select">
+        <select id="lostType" class="form-select" aria-label="Opção Tipo de publicação">
           <option value="lost">🔍 Pet Perdido</option>
           <option value="adopt">🏠 Para Adoção</option>
           <option value="found">✅ Pet Encontrado</option>
@@ -636,7 +647,7 @@
       <div class="form-group"><label class="form-label">Nome do pet (se souber)</label><input type="text" id="lostPetName" class="form-input" placeholder="Ex: Bob, desconhecido..."/></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Espécie</label>
-          <select id="lostSpecies" class="form-select">
+          <select id="lostSpecies" class="form-select" aria-label="Opção Espécie do pet perdido">
             <option>Cão</option><option>Gato</option><option>Ave</option><option>Outro</option>
           </select></div>
         <div class="form-group"><label class="form-label">Raça / Cor</label><input type="text" id="lostBreed" class="form-input" placeholder="SRD, caramelo..."/></div>
@@ -644,8 +655,8 @@
       <div class="form-group"><label class="form-label">Bairro / Local</label><input type="text" id="lostLocation" class="form-input" placeholder="Onde foi visto ou mora"/></div>
       <div class="form-group"><label class="form-label">Descrição</label><textarea id="lostDesc" class="form-input" rows="3" style="resize:none;" placeholder="Detalhes que ajudem a identificar..."></textarea></div>
       <div class="form-group"><label class="form-label">Contato (WhatsApp)</label><input type="tel" id="lostContact" class="form-input" placeholder="(27) 99999-9999"/></div>
-      <button class="btn-primary" onclick="submitLostPost()">PUBLICAR</button>
-      <button class="btn-outline" onclick="closeModal('createLostModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitLostPost()" aria-label="Botão Publicar pet perdido ou para adoção">PUBLICAR</button>
+      <button class="btn-outline" onclick="closeModal('createLostModal')" aria-label="Botão Cancelar e fechar modal de pets perdidos">Cancelar</button>
     </div>
   </div>
 </div>
@@ -664,9 +675,9 @@
     </div>
     <div style="background:#fff0f0;border:1px solid #ffcdd2;border-radius:12px;padding:14px;margin-bottom:12px;">
       <p style="font-size:13px;color:var(--red);margin-bottom:10px;">⚠️ Excluir conta remove permanentemente todos seus dados e pets. Irreversível.</p>
-      <button class="btn-outline" style="color:var(--red);border-color:var(--red);width:100%;" onclick="deleteMyAccount()">🗑️ Excluir minha conta</button>
+      <button class="btn-outline" style="color:var(--red);border-color:var(--red);width:100%;" onclick="deleteMyAccount()" aria-label="Botão Excluir minha conta permanentemente">🗑️ Excluir minha conta</button>
     </div>
-    <button class="btn-outline" onclick="closeModal('lgpdModal')">Fechar</button>
+    <button class="btn-outline" onclick="closeModal('lgpdModal')" aria-label="Botão Fechar modal de privacidade">Fechar</button>
   </div>
 </div>
 
@@ -678,20 +689,59 @@
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div class="form-group"><label class="form-label">Nome</label><input type="text" id="renewName" class="form-input" readonly/></div>
       <div class="form-group"><label class="form-label">Dias de acesso</label>
-        <select id="renewDays" class="form-select">
+        <select id="renewDays" class="form-select" aria-label="Opção Dias de acesso para renovação">
           <option value="30">30 dias — R$15</option>
           <option value="60">60 dias — R$28</option>
           <option value="90">90 dias — R$40</option>
           <option value="365">365 dias — R$120</option>
         </select></div>
-      <button class="btn-primary" onclick="submitRenew()">RENOVAR</button>
-      <button class="btn-outline" onclick="closeModal('renewModal')">Cancelar</button>
+      <button class="btn-primary" onclick="submitRenew()" aria-label="Botão Renovar acesso do usuário">RENOVAR</button>
+      <button class="btn-outline" onclick="closeModal('renewModal')" aria-label="Botão Cancelar e fechar modal de renovação">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Food Record -->
+<div id="addFoodModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="addFoodModalTitle">
+  <div class="modal"><div class="modal-handle" aria-hidden="true"></div>
+    <h2 class="modal-title" id="addFoodModalTitle">🍖 Registrar <span>Alimentação</span></h2>
+    <input type="hidden" id="foodPetId"/>
+    <input type="hidden" id="foodRecordId"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group">
+        <label class="form-label" for="foodTypeInput">Tipo de ração / alimento</label>
+        <input type="text" id="foodTypeInput" class="form-input" placeholder="Ex: Royal Canin, Whiskas, Pedigree..." aria-required="true"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="foodPriceInput">Valor pago (R$)</label>
+          <input type="number" step="0.01" id="foodPriceInput" class="form-input" placeholder="Ex: 89.90" aria-label="Campo Valor pago em reais"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="foodWeightInput">Peso da embalagem (kg)</label>
+          <input type="number" step="0.1" id="foodWeightInput" class="form-input" placeholder="Ex: 15" aria-label="Campo Peso da embalagem em quilogramas"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="foodWhereInput">Onde comprou</label>
+        <input type="text" id="foodWhereInput" class="form-input" placeholder="Ex: PetLove, Cobasi, Mercado..." aria-label="Campo Nome do local onde comprou"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="foodDateInput">Data da compra</label>
+        <input type="date" id="foodDateInput" class="form-input" aria-label="Campo Data da compra"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="foodNoteInput">Observação (opcional)</label>
+        <input type="text" id="foodNoteInput" class="form-input" placeholder="Ex: Pet gostou muito, não aceitou..." aria-label="Campo Observação opcional sobre o alimento"/>
+      </div>
+      <button class="btn-primary" onclick="submitFoodRecord()" aria-label="Botão Salvar registro de alimentação">SALVAR ALIMENTAÇÃO</button>
+      <button class="btn-outline" onclick="closeModal('addFoodModal')" aria-label="Botão Cancelar e fechar modal de alimentação">Cancelar</button>
     </div>
   </div>
 </div>
 
 <!-- TOAST -->
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script type="module">
 import {
@@ -950,10 +1000,10 @@ async function loadPets() {
             </div>
           </div>
           <div class="pet-actions">
-            <button class="pet-action-btn" onclick="event.stopPropagation();openAddVaccine('${p.id}')">💉 Vacina</button>
-            <button class="pet-action-btn" onclick="event.stopPropagation();openAddConsult('${p.id}')">🏥 Consulta</button>
-            <button class="pet-action-btn edit" onclick="event.stopPropagation();openEditPet('${p.id}')"><i class="fa-solid fa-pen"></i></button>
-            <button class="pet-action-btn del" onclick="event.stopPropagation();confirmDeletePet('${p.id}','${p.name}')"><i class="fa-solid fa-trash"></i></button>
+            <button class="pet-action-btn" onclick="event.stopPropagation();openAddVaccine('${p.id}')" aria-label="Botão Registrar vacina para ${p.name}">💉 Vacina</button>
+            <button class="pet-action-btn" onclick="event.stopPropagation();openAddConsult('${p.id}')" aria-label="Botão Registrar consulta para ${p.name}">🏥 Consulta</button>
+            <button class="pet-action-btn edit" onclick="event.stopPropagation();openEditPet('${p.id}')" aria-label="Botão Editar dados de ${p.name}"><i class="fa-solid fa-pen" aria-hidden="true"></i><span class="sr-only">Editar</span></button>
+            <button class="pet-action-btn del" onclick="event.stopPropagation();confirmDeletePet('${p.id}','${p.name}')" aria-label="Botão Excluir pet ${p.name}"><i class="fa-solid fa-trash" aria-hidden="true"></i><span class="sr-only">Excluir</span></button>
           </div>
         </div>`;
     }).join('');
@@ -981,30 +1031,96 @@ window.openPetDetail = async function(petId) {
   ]);
 
   const body = document.getElementById('petDetailBody');
+
+  // Food history helpers (localStorage por pet)
+  function getFoodHistory(pid) {
+    try { return JSON.parse(localStorage.getItem('foodHistory_' + pid) || '[]'); } catch { return []; }
+  }
+  function saveFoodHistory(pid, arr) {
+    localStorage.setItem('foodHistory_' + pid, JSON.stringify(arr));
+  }
+  window._currentFoodPetId = petId;
+  window._getFoodHistory = getFoodHistory;
+  window._saveFoodHistory = saveFoodHistory;
+
+  function renderFoodSection() {
+    const history = getFoodHistory(petId);
+    const last3 = history.slice(-3).reverse();
+    const currentFood = history.length ? history[history.length - 1] : null;
+    return `
+    <div class="detail-card" role="region" aria-label="Seção de alimentação do pet">
+      <div class="detail-card-title">
+        <span>🍖 Alimentação</span>
+        <button class="btn-sm" onclick="openAddFoodRecord('${petId}')" aria-label="Botão Adicionar novo registro de alimentação">+ Adicionar novo</button>
+      </div>
+      <div class="detail-card-body">
+        ${currentFood ? `
+        <div class="detail-row">
+          <div class="detail-icon" style="background:#FFF0E8;" aria-hidden="true">🍖</div>
+          <div>
+            <div class="detail-label">Ração / Alimento atual</div>
+            <div class="detail-val">${currentFood.type} <span class="food-current-badge">Atual</span></div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon" style="background:#E8F7EE;" aria-hidden="true">💰</div>
+          <div>
+            <div class="detail-label">Último valor pago</div>
+            <div class="detail-val">${currentFood.price ? 'R$ ' + parseFloat(currentFood.price).toFixed(2) : 'Não informado'}${currentFood.weight ? ' · ' + currentFood.weight + 'kg' : ''}</div>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-icon" style="background:#FFF8E0;" aria-hidden="true">🏪</div>
+          <div>
+            <div class="detail-label">Onde comprou</div>
+            <div class="detail-val">${currentFood.where || 'Não informado'}</div>
+          </div>
+        </div>` : `
+        <div style="color:var(--gray);font-size:14px;text-align:center;padding:12px 0 4px;" role="status">
+          Nenhum registro de alimentação ainda.<br/>
+          <span style="font-size:13px;">Clique em <strong>+ Adicionar novo</strong> para começar.</span>
+        </div>`}
+        ${last3.length ? `
+        <div style="margin-top:14px;">
+          <div style="font-size:12px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;" id="foodHistLabel">📋 Últimos 3 registros</div>
+          <table class="food-history-table" role="table" aria-labelledby="foodHistLabel">
+            <thead>
+              <tr>
+                <th scope="col">Alimento</th>
+                <th scope="col">Valor</th>
+                <th scope="col">Local</th>
+                <th scope="col">Data</th>
+                <th scope="col"><span class="sr-only">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${last3.map((f, i) => `
+              <tr>
+                <td>${f.type}${f.weight ? '<br><span style="font-size:11px;color:var(--gray);">' + f.weight + 'kg</span>' : ''}</td>
+                <td>${f.price ? 'R$ ' + parseFloat(f.price).toFixed(2) : '—'}</td>
+                <td>${f.where || '—'}</td>
+                <td style="white-space:nowrap;">${f.date || '—'}</td>
+                <td>
+                  <button class="food-edit-btn" onclick="openEditFoodRecord('${petId}', ${history.length - 1 - i})" aria-label="Botão Editar registro de alimentação ${f.type}">
+                    <i class="fa-solid fa-pen" aria-hidden="true"></i> Editar
+                  </button>
+                </td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }
+  window._renderFoodSection = renderFoodSection;
   body.innerHTML = `
     <!-- Alimentação -->
-    <div class="detail-card">
-      <div class="detail-card-title">🍖 Alimentação</div>
-      <div class="detail-card-body">
-        <div class="detail-row">
-          <div class="detail-icon" style="background:#FFF0E8;">🍖</div>
-          <div><div class="detail-label">Tipo / Ração</div><div class="detail-val">${p.foodType||'Não informado'}</div></div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-icon" style="background:#E8F7EE;">💰</div>
-          <div><div class="detail-label">Último valor pago</div><div class="detail-val">${p.foodPrice?'R$ '+parseFloat(p.foodPrice).toFixed(2):'Não informado'}</div></div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-icon" style="background:#FFF8E0;">🏪</div>
-          <div><div class="detail-label">Onde comprou</div><div class="detail-val">${p.foodWhere||'Não informado'}</div></div>
-        </div>
-      </div>
-    </div>
+    ${renderFoodSection()}
 
     <!-- Vacinas -->
     <div class="detail-card">
       <div class="detail-card-title">💉 Vacinas
-        <button class="btn-sm" onclick="openAddVaccine('${petId}')">+ Adicionar</button>
+        <button class="btn-sm" onclick="openAddVaccine('${petId}')" aria-label="Botão Adicionar nova vacina para ${p.name}">+ Adicionar</button>
       </div>
       <div class="detail-card-body">
         ${vaccines.length ? vaccines.map(v => {
@@ -1023,7 +1139,7 @@ window.openPetDetail = async function(petId) {
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
               ${diffDays !== null ? `<span class="vaccine-next ${statusClass}">${statusText}</span>` : ''}
-              <button class="btn-sm-outline" onclick="confirmDeleteVaccine('${v.id}')">🗑️</button>
+              <button class="btn-sm-outline" onclick="confirmDeleteVaccine('${v.id}')" aria-label="Botão Excluir vacina ${v.name}">🗑️</button>
             </div>
           </div>`;
         }).join('') : '<div style="color:var(--gray);font-size:14px;text-align:center;padding:16px;">Nenhuma vacina registrada</div>'}
@@ -1033,7 +1149,7 @@ window.openPetDetail = async function(petId) {
     <!-- Consultas -->
     <div class="detail-card">
       <div class="detail-card-title">🏥 Consultas
-        <button class="btn-sm" onclick="openAddConsult('${petId}')">+ Adicionar</button>
+        <button class="btn-sm" onclick="openAddConsult('${petId}')" aria-label="Botão Adicionar nova consulta para ${p.name}">+ Adicionar</button>
       </div>
       <div class="detail-card-body">
         ${consults.length ? consults.map(c => `
@@ -1043,7 +1159,7 @@ window.openPetDetail = async function(petId) {
               <div class="vaccine-date">${c.date} · ${c.vetName||''} ${c.price?'· R$ '+parseFloat(c.price).toFixed(2):''}</div>
               ${c.medications ? `<div style="font-size:12px;color:var(--gray);margin-top:2px;">💊 ${c.medications}</div>` : ''}
             </div>
-            <button class="btn-sm-outline" onclick="confirmDeleteConsult('${c.id}')">🗑️</button>
+            <button class="btn-sm-outline" onclick="confirmDeleteConsult('${c.id}')" aria-label="Botão Excluir consulta ${c.reason}">🗑️</button>
           </div>`).join('') : '<div style="color:var(--gray);font-size:14px;text-align:center;padding:16px;">Nenhuma consulta registrada</div>'}
       </div>
     </div>
@@ -1051,13 +1167,13 @@ window.openPetDetail = async function(petId) {
     <!-- Peso -->
     <div class="detail-card">
       <div class="detail-card-title">⚖️ Histórico de Peso
-        <button class="btn-sm" onclick="openAddWeight('${petId}')">+ Registrar</button>
+        <button class="btn-sm" onclick="openAddWeight('${petId}')" aria-label="Botão Registrar novo peso para ${p.name}">+ Registrar</button>
       </div>
       <div class="detail-card-body">
         ${weights.length ? weights.map(w => `
           <div class="vaccine-item">
             <div><div class="vaccine-name">${w.weight} kg</div><div class="vaccine-date">${w.date}${w.note?' · '+w.note:''}</div></div>
-            <button class="btn-sm-outline" onclick="confirmDeleteWeight('${w.id}')">🗑️</button>
+            <button class="btn-sm-outline" onclick="confirmDeleteWeight('${w.id}')" aria-label="Botão Excluir registro de peso ${w.weight} kg">🗑️</button>
           </div>`).join('') : '<div style="color:var(--gray);font-size:14px;text-align:center;padding:16px;">Nenhum peso registrado</div>'}
       </div>
     </div>
@@ -1069,6 +1185,65 @@ window.openPetDetail = async function(petId) {
 }
 
 window.closePetDetail = function() { showScreen('main'); }
+
+// ===== FOOD HISTORY CRUD =====
+window.openAddFoodRecord = function(petId) {
+  document.getElementById('foodPetId').value = petId;
+  document.getElementById('foodRecordId').value = '';
+  document.getElementById('foodTypeInput').value = '';
+  document.getElementById('foodPriceInput').value = '';
+  document.getElementById('foodWeightInput').value = '';
+  document.getElementById('foodWhereInput').value = '';
+  document.getElementById('foodDateInput').value = new Date().toISOString().split('T')[0];
+  document.getElementById('foodNoteInput').value = '';
+  document.querySelector('#addFoodModal .modal-title').innerHTML = '🍖 Adicionar <span>Alimentação</span>';
+  openModal('addFoodModal');
+}
+
+window.openEditFoodRecord = function(petId, index) {
+  const history = window._getFoodHistory ? window._getFoodHistory(petId) : [];
+  const record = history[index];
+  if (!record) return;
+  document.getElementById('foodPetId').value = petId;
+  document.getElementById('foodRecordId').value = index;
+  document.getElementById('foodTypeInput').value = record.type || '';
+  document.getElementById('foodPriceInput').value = record.price || '';
+  document.getElementById('foodWeightInput').value = record.weight || '';
+  document.getElementById('foodWhereInput').value = record.where || '';
+  document.getElementById('foodDateInput').value = record.date || '';
+  document.getElementById('foodNoteInput').value = record.note || '';
+  document.querySelector('#addFoodModal .modal-title').innerHTML = '✏️ Editar <span>Alimentação</span>';
+  openModal('addFoodModal');
+}
+
+window.submitFoodRecord = function() {
+  const petId = document.getElementById('foodPetId').value;
+  const recordId = document.getElementById('foodRecordId').value;
+  const type = document.getElementById('foodTypeInput').value.trim();
+  if (!type) { showToast('Informe o tipo de ração ou alimento'); return; }
+  const record = {
+    type,
+    price: document.getElementById('foodPriceInput').value,
+    weight: document.getElementById('foodWeightInput').value,
+    where: document.getElementById('foodWhereInput').value.trim(),
+    date: document.getElementById('foodDateInput').value,
+    note: document.getElementById('foodNoteInput').value.trim()
+  };
+  const history = window._getFoodHistory ? window._getFoodHistory(petId) : [];
+  if (recordId !== '') {
+    history[parseInt(recordId)] = record;
+    showToast('✅ Registro atualizado!');
+  } else {
+    history.push(record);
+    showToast('✅ Alimentação registrada!');
+  }
+  if (window._saveFoodHistory) window._saveFoodHistory(petId, history);
+  closeModal('addFoodModal');
+  const foodSection = document.querySelector('[aria-label="Seção de alimentação do pet"]');
+  if (foodSection && window._renderFoodSection) {
+    foodSection.outerHTML = window._renderFoodSection();
+  }
+}
 
 // ===== PET CRUD =====
 window.updateEmojiPreview = function() {}
@@ -1337,7 +1512,7 @@ function renderLostPets(type = 'all') {
         <div class="lost-footer">
           <div style="font-size:12px;color:var(--gray);">${timeAgo(item.createdAt)} · por ${item.ownerName||''}</div>
           <div style="display:flex;gap:8px;align-items:center;">
-            ${isMine?`<button class="btn-sm-outline" onclick="deleteLostConfirm('${item.id}')">🗑️</button>`:''}
+            ${isMine?`<button class="btn-sm-outline" onclick="deleteLostConfirm('${item.id}')" aria-label="Botão Excluir publicação de pet perdido">🗑️</button>`:''}
             ${item.contact?`<button class="btn-contact" onclick="contactLost('${item.contact}','${item.petName||'pet'}')"><i class="fa-brands fa-whatsapp"></i> Contato</button>`:''}
           </div>
         </div>
